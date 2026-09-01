@@ -1,12 +1,12 @@
 {
-  "version": "1a8b2f6",
-  "commit": "1a8b2f6b1c4b9799693ca2ae638bc394fbdc04d5",
+  "version": "78ed6cc",
+  "commit": "78ed6cc7379e32794d37fe70cfe567a94777f139",
   "branch": "dev",
   "channel": "dev",
   "target": "esp32",
   "hardware": "lilygo_t5_v2_3_1",
   "url": "https://raw.githubusercontent.com/khrisperry/KegScaleFirmware/main/display/dev/esp32/keg_scale_display.bin",
-  "size": 1242672,
-  "sha256": "856d2cd4549692dd6e0f3c5a81fc5905890973acf715c0452f96defa771c0b34",
-  "published_at": "2026-09-01T19:43:47Z"
+  "size": 1243568,
+  "sha256": "23dd9e5a8ae2eb30eebfbec0c40904bcc0440d3236a78ef3505049f20d756385",
+  "published_at": "2026-09-01T19:56:32Z"
 }
