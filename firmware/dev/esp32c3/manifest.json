@@ -1,11 +1,11 @@
 {
-  "version": "V0.0.1-129-ge73c569",
-  "commit": "e73c569381235e8d6b12b724b3491dec3bc4b55a",
+  "version": "V0.0.1-130-g6a76d73",
+  "commit": "6a76d7393d839e9b48b4f11dcaaa9d9876cd3bed",
   "branch": "dev",
   "channel": "dev",
   "target": "esp32c3",
   "url": "https://raw.githubusercontent.com/khrisperry/KegScaleFirmware/main/firmware/dev/esp32c3/keg_scale_esp.bin",
-  "size": 1471776,
-  "sha256": "60a9672107de0963ec75a2fdd10e1f380130fc1e2f1d98a67dc1ff45524eaa11",
-  "published_at": "2026-09-01T20:40:12Z"
+  "size": 1472000,
+  "sha256": "660f95b7b55743368954e62b56507520d597a49223de38c2e2fc719d12ebda51",
+  "published_at": "2026-09-02T00:52:59Z"
 }
