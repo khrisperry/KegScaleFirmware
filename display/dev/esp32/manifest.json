@@ -1,6 +1,6 @@
 {
-  "version": "V0.0.6",
-  "commit": "1009dc44791c759bdcc34828c20e70d22252d456",
+  "version": "V0.0.7",
+  "commit": "b60fb8bbb6088b750567ffacb79f5b1c9bb89807",
   "branch": "dev",
   "channel": "dev",
   "target": "esp32",
@@ -8,8 +8,8 @@
   "protocol_version": 1,
   "requires_scale_protocol_min": 1,
   "requires_scale_protocol_max": 1,
-  "url": "https://raw.githubusercontent.com/khrisperry/KegScaleFirmware/main/display/dev/esp32/keg_scale_display-1009dc44791c.bin",
-  "size": 1270256,
-  "sha256": "8b9180fe32ec07133ac3bdd8c4b9513f344d231de5f7fad4228099c76dc42ff9",
-  "published_at": "2026-09-04T23:18:36Z"
+  "url": "https://raw.githubusercontent.com/khrisperry/KegScaleFirmware/main/display/dev/esp32/keg_scale_display-b60fb8bbb608.bin",
+  "size": 1270656,
+  "sha256": "55b665b5663e4ee23af48edc0f507cc8b730cd92abef7732218cba155991dc1d",
+  "published_at": "2026-09-05T00:14:42Z"
 }
