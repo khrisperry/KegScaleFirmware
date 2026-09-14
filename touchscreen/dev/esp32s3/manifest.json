@@ -1,6 +1,6 @@
 {
   "version": "V0.0.6",
-  "commit": "0159a4226270f8b74beb6ae371062a0c96e34f63",
+  "commit": "e44f98924d65a636a3683bf3e3fcdb5e08a91c8a",
   "channel": "dev",
   "target": "esp32s3",
   "hardware": "waveshare_esp32_s3_touch_lcd_4b",
@@ -8,6 +8,6 @@
   "requires_scale_wifi_protocol_min": 1,
   "requires_scale_wifi_protocol_max": 1,
   "size": 1592528,
-  "sha256": "0f7c89dbcce0e2f3eef3bd38a5edcf556fa86a6d537ab4e738b73c497d27a662",
-  "url": "https://raw.githubusercontent.com/khrisperry/KegScaleFirmware/main/touchscreen/dev/esp32s3/keg_scale_touchscreen-0159a4226270.bin"
+  "sha256": "d1deed99cf45d5b2c7df74c05ec8f6186e8a58e4fc916393988472a9e730b270",
+  "url": "https://raw.githubusercontent.com/khrisperry/KegScaleFirmware/main/touchscreen/dev/esp32s3/keg_scale_touchscreen-e44f98924d65.bin"
 }
