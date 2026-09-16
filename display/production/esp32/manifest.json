@@ -1,15 +1,15 @@
-﻿{
-    "version":  "V1.3.0",
-    "commit":  "local-ota-authorization-hotfix",
-    "branch":  "main",
-    "channel":  "production",
-    "target":  "esp32",
-    "hardware":  "lilygo_t5_v2_3_1",
-    "protocol_version":  1,
-    "requires_scale_protocol_min":  1,
-    "requires_scale_protocol_max":  1,
-    "url":  "https://raw.githubusercontent.com/khrisperry/KegScaleFirmware/main/display/production/esp32/keg_scale_display-8ae33ab24ffb.bin",
-    "size":  1289664,
-    "sha256":  "8ae33ab24ffb4690494f72ab8c4140e395e78e0ab6fddd3bb788495a1a5de6a2",
-    "published_at":  "2026-09-16T18:46:02Z"
+{
+  "version": "V1.3.0",
+  "commit": "b941a63e724cdd42584826595106f5eb150a81fc",
+  "branch": "main",
+  "channel": "production",
+  "target": "esp32",
+  "hardware": "lilygo_t5_v2_3_1",
+  "protocol_version": 1,
+  "requires_scale_protocol_min": 1,
+  "requires_scale_protocol_max": 1,
+  "url": "https://raw.githubusercontent.com/khrisperry/KegScaleFirmware/main/display/production/esp32/keg_scale_display-b941a63e724c.bin",
+  "size": 1289664,
+  "sha256": "2200b7f1fb88cb3d927bf3bafe6fd0304aac411936869d60d2ff5ac468d6f549",
+  "published_at": "2026-09-16T19:21:54Z"
 }
