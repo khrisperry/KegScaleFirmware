@@ -1,6 +1,6 @@
-{
+﻿{
     "version":  "V1.3.1",
-    "commit":  "2a27a6ee3235d4280cef33cca0cb1624a66c51d8",
+    "commit":  "local-ota-authorization-hotfix",
     "branch":  "dev",
     "channel":  "dev",
     "target":  "esp32",
@@ -8,8 +8,8 @@
     "protocol_version":  1,
     "requires_scale_protocol_min":  1,
     "requires_scale_protocol_max":  1,
-    "url":  "https://raw.githubusercontent.com/khrisperry/KegScaleFirmware/main/display/dev/esp32/keg_scale_display-2a27a6ee3235.bin",
-    "size":  1289280,
-    "sha256":  "c2ebcb320048ef765219e94d97c56586deda277ef15b4ee3738b1931e661a5da",
-    "published_at":  "2026-09-16T17:13:20Z"
+    "url":  "https://raw.githubusercontent.com/khrisperry/KegScaleFirmware/main/display/dev/esp32/keg_scale_display-56d04ea153a8.bin",
+    "size":  1289664,
+    "sha256":  "56d04ea153a86220892b9190ba7385abf3dc1e449d615c9a49469704fb3602bb",
+    "published_at":  "2026-09-16T18:48:13Z"
 }
