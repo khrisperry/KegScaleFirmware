@@ -1,15 +1,15 @@
 {
-  "version": "V1.3.1",
-  "commit": "c2f07a892ef0afd31406e99c3a04c9397374a598",
-  "branch": "dev",
-  "channel": "dev",
-  "target": "esp32",
-  "hardware": "lilygo_t5_v2_3_1",
-  "protocol_version": 1,
-  "requires_scale_protocol_min": 1,
-  "requires_scale_protocol_max": 1,
-  "url": "https://raw.githubusercontent.com/khrisperry/KegScaleFirmware/main/display/dev/esp32/keg_scale_display-c2f07a892ef0.bin",
-  "size": 1289664,
-  "sha256": "f16cb39318a82906232e1dfeb0e698ec4027e0d79259d5ca044ecebf8d1053ed",
-  "published_at": "2026-09-16T19:20:51Z"
+    "version":  "V1.3.2",
+    "commit":  "f9c3b636f28353780f8bb809095f060e34636227",
+    "branch":  "dev",
+    "channel":  "dev",
+    "target":  "esp32",
+    "hardware":  "lilygo_t5_v2_3_1",
+    "protocol_version":  1,
+    "requires_scale_protocol_min":  1,
+    "requires_scale_protocol_max":  1,
+    "url":  "https://raw.githubusercontent.com/khrisperry/KegScaleFirmware/main/display/dev/esp32/keg_scale_display-f9c3b636f283.bin",
+    "size":  1289808,
+    "sha256":  "5293ba41781e674b1b94f98b4cc06f619dcd7925c7242d8629b152c03836ff36",
+    "published_at":  "2026-09-21T14:46:00Z"
 }
