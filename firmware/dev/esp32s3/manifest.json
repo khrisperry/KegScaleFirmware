@@ -1,14 +1,14 @@
 {
-    "version":  "V1.3.2",
-    "commit":  "473b61ff9041ee0ba6d032f0e8ce44b9d5c881e1",
+    "version":  "V1.3.3",
+    "commit":  "4f5431ec9e7ef6b176b5e1f05e7e86df30e57db1",
     "branch":  "dev",
     "channel":  "dev",
     "target":  "esp32s3",
     "protocol_version":  1,
     "requires_display_protocol_min":  1,
     "requires_display_protocol_max":  1,
-    "url":  "https://raw.githubusercontent.com/khrisperry/KegScaleFirmware/main/firmware/dev/esp32s3/keg_scale_esp-473b61ff9041.bin",
-    "size":  1551184,
-    "sha256":  "5c5a57cce60cd6a20b6f569b8def2ea8c681d83703a02ab01bf83d3f4a6eb7a5",
-    "published_at":  "2026-09-21T13:39:12Z"
+    "url":  "https://raw.githubusercontent.com/khrisperry/KegScaleFirmware/main/firmware/dev/esp32s3/keg_scale_esp-4f5431ec9e7e.bin",
+    "size":  1551232,
+    "sha256":  "bf361fc8cc4fc82cda3f9875e52a2cc4e24dc16ca4bb3556a72863b8084b4893",
+    "published_at":  "2026-09-21T19:29:55Z"
 }
