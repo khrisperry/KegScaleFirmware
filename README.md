@@ -27,7 +27,9 @@ first installation.
 
 Production corresponds to each source repository's `main` branch, Dev to `dev`,
 and Beta to `beta`. Distribution files for all channels live on this repository's
-`main` branch. V1.3.4 updates Production and Dev; Beta remains unchanged.
+`main` branch. V1.3.4 updates Production and Dev. Scale and e-paper retain their
+older V1.1.0 Beta manifests; a Touch Beta manifest is not currently published and
+is tracked in `KegScaleESPDisplay` issue #7.
 
 Use the device's firmware settings to select a channel and check for updates.
 Update the Scale first, then e-paper and Touch. E-paper OTA is coordinated by the
