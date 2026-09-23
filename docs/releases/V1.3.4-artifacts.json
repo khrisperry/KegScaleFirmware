@@ -1,0 +1,56 @@
+[
+  {
+    "device": "firmware",
+    "channel": "dev",
+    "version": "V1.3.4",
+    "commit": "95be24ca126f0c06c487c780307df8ab93450d68",
+    "size": 1583248,
+    "sha256": "2f7b7444458caa212d0aa106bf9636336a6ceca2b50d5cde5daf224edb9dbb5b",
+    "url": "https://raw.githubusercontent.com/khrisperry/KegScaleFirmware/main/firmware/dev/esp32s3/keg_scale_esp-95be24ca126f.bin"
+  },
+  {
+    "device": "firmware",
+    "channel": "production",
+    "version": "V1.3.4",
+    "commit": "95be24ca126f0c06c487c780307df8ab93450d68",
+    "size": 1583248,
+    "sha256": "2f7b7444458caa212d0aa106bf9636336a6ceca2b50d5cde5daf224edb9dbb5b",
+    "url": "https://raw.githubusercontent.com/khrisperry/KegScaleFirmware/main/firmware/production/esp32s3/keg_scale_esp-95be24ca126f.bin"
+  },
+  {
+    "device": "display",
+    "channel": "dev",
+    "version": "V1.3.4",
+    "commit": "9c73fa4211aa9b0866cfc360046ffdb47c61e03a",
+    "size": 1284464,
+    "sha256": "adacef7faf5fc897c8f7fd64e0cf99f77f1420c5a93792564ce021390de032cd",
+    "url": "https://raw.githubusercontent.com/khrisperry/KegScaleFirmware/main/display/dev/esp32/keg_scale_display-9c73fa4211aa.bin"
+  },
+  {
+    "device": "display",
+    "channel": "production",
+    "version": "V1.3.4",
+    "commit": "9c73fa4211aa9b0866cfc360046ffdb47c61e03a",
+    "size": 1284464,
+    "sha256": "adacef7faf5fc897c8f7fd64e0cf99f77f1420c5a93792564ce021390de032cd",
+    "url": "https://raw.githubusercontent.com/khrisperry/KegScaleFirmware/main/display/production/esp32/keg_scale_display-9c73fa4211aa.bin"
+  },
+  {
+    "device": "touchscreen",
+    "channel": "dev",
+    "version": "V1.3.4",
+    "commit": "9c73fa4211aa9b0866cfc360046ffdb47c61e03a",
+    "size": 1892192,
+    "sha256": "f34e0c5c000ff6be19bff65faa3c4ad3cdd4da863fde7b6000e0cb87b0c44d52",
+    "url": "https://raw.githubusercontent.com/khrisperry/KegScaleFirmware/main/touchscreen/dev/esp32s3/keg_scale_touchscreen-9c73fa4211aa.bin"
+  },
+  {
+    "device": "touchscreen",
+    "channel": "production",
+    "version": "V1.3.4",
+    "commit": "9c73fa4211aa9b0866cfc360046ffdb47c61e03a",
+    "size": 1892192,
+    "sha256": "f34e0c5c000ff6be19bff65faa3c4ad3cdd4da863fde7b6000e0cb87b0c44d52",
+    "url": "https://raw.githubusercontent.com/khrisperry/KegScaleFirmware/main/touchscreen/production/esp32s3/keg_scale_touchscreen-9c73fa4211aa.bin"
+  }
+]
