@@ -45,11 +45,35 @@ saved values are preserved. Scale weight calibration is unchanged.
 
 ## Publishing
 
-Source pushes do not automatically publish: workflows are manually dispatched.
-Local releases build all three projects with ESP-IDF 6.0.1, run their regression
-checks, and use `python tools/prepare_release.py --version V1.3.4` from clean sibling
-source checkouts. The tool reads the existing `build-local-v132` directories,
-validates embedded application name/version/target, and writes commit-named images
-and size/SHA-256 manifests for Dev and Production. Commit and push are separate.
+Source pushes do not automatically publish. Local releases use ESP-IDF 6.0.1,
+run the matching host/regression checks, and publish only hardware-validated
+artifacts from clean sibling source checkouts.
+
+The helper reads the normal ESP-IDF `build` directories, validates the embedded
+application name/version/target, calculates SHA-256, writes a commit-named image,
+updates the selected channel manifest, and writes a scoped artifact inventory.
+Commit and push remain separate.
+
+For a Scale-only Dev OTA after local hardware validation:
+
+```powershell
+cd C:\Users\kperry\Documents\GitHub\KegScaleFirmware
+git pull origin main
+python tools\prepare_release.py --version V1.3.12 --device scale --channel dev
+git status
+```
+
+That command changes only `firmware/dev/esp32s3` and creates
+`docs/releases/V1.3.12-scale-dev-artifacts.json`. It does not modify Production,
+Touch, or e-paper manifests. Repeat `--device` or `--channel` when intentionally
+publishing multiple targets.
+
+For a coordinated release after all three devices have been validated, omitting
+`--device` and `--channel` retains the all-devices/all-channels behavior:
+
+```powershell
+python tools\prepare_release.py --version V1.3.12
+```
+
 Older images remain available for historical links; manifests identify the current
 release. Host tests do not establish physical battery, RF, or power-loss behavior.
