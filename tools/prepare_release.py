@@ -6,6 +6,10 @@ historical behavior of preparing all devices for dev and production. Use
 --device and --channel to limit the publication scope, for example:
 
   python tools/prepare_release.py --version V1.3.12 --device scale --channel dev
+
+For a single-device build whose repository has advanced only in unrelated
+subprojects after hardware validation, pin the manifest to the validated source
+checkpoint with --source-commit.
 """
 import argparse
 from datetime import datetime, timezone
@@ -64,7 +68,7 @@ def device_specs(scale, display):
     }
 
 
-def prepare(version, scale, display, selected_devices, channels):
+def prepare(version, scale, display, selected_devices, channels, source_commit=None):
     specs = device_specs(scale, display)
 
     repos = {specs[name]['repo'] for name in selected_devices}
@@ -101,6 +105,23 @@ def prepare(version, scale, display, selected_devices, channels):
 
         repo = spec['repo']
         commit = git(repo, 'rev-parse', 'HEAD')
+        if source_commit:
+            if len(selected_devices) != 1:
+                raise SystemExit(
+                    '--source-commit is only valid when exactly one --device is selected'
+                )
+            commit = git(repo, 'rev-parse', source_commit + '^{commit}')
+            try:
+                subprocess.check_call(
+                    ['git', '-C', str(repo), 'merge-base', '--is-ancestor',
+                     commit, 'HEAD'],
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                )
+            except subprocess.CalledProcessError:
+                raise SystemExit(
+                    f'Source commit {commit} is not an ancestor of current HEAD in {repo}'
+                )
         template_path = (
             ROOT / spec['family'] / 'dev' / spec['target'] / 'manifest.json'
         )
@@ -204,6 +225,13 @@ if __name__ == '__main__':
         dest='channels',
         help='Channel to prepare. Repeat to select multiple. Default: both.',
     )
+    parser.add_argument(
+        '--source-commit',
+        help=(
+            'Pin a single-device artifact to a validated source commit. '
+            'The commit must be an ancestor of the current checkout HEAD.'
+        ),
+    )
     args = parser.parse_args()
 
     prepare(
@@ -212,4 +240,5 @@ if __name__ == '__main__':
         args.display_root.resolve(),
         args.devices or ['scale', 'display', 'touchscreen'],
         args.channels or ['dev', 'production'],
+        args.source_commit,
     )
