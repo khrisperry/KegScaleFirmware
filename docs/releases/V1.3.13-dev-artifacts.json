@@ -1,0 +1,20 @@
+[
+    {
+        "device":  "firmware",
+        "channel":  "dev",
+        "version":  "V1.3.13",
+        "commit":  "5ad716db0a1babc3df4c66fb9cdd6032d6a16dd0",
+        "size":  1600864,
+        "sha256":  "7420bb8a64703a1060f42a0315b976aaf799a568cd7df36be57a8fc2dfcf334c",
+        "url":  "https://raw.githubusercontent.com/khrisperry/KegScaleFirmware/main/firmware/dev/esp32s3/keg_scale_esp-5ad716db0a1b.bin"
+    },
+    {
+        "device":  "touchscreen",
+        "channel":  "dev",
+        "version":  "V1.3.13",
+        "commit":  "5c852a1ff3f56da39659480a8852d22cd113afdf",
+        "size":  1896080,
+        "sha256":  "eeddea1c0ac1cc50c28d905888a35703a0aa7a584d102cd6d644852e103a97a1",
+        "url":  "https://raw.githubusercontent.com/khrisperry/KegScaleFirmware/main/touchscreen/dev/esp32s3/keg_scale_touchscreen-5c852a1ff3f5.bin"
+    }
+]
