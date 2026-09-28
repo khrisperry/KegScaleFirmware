@@ -3,3 +3,7 @@
 *.key
 .ota-keys/
 keys/private/
+
+# Python cache files from local release tooling.
+__pycache__/
+*.pyc
