@@ -15,9 +15,12 @@ import argparse
 from datetime import datetime, timezone
 import hashlib
 import json
+import os
 from pathlib import Path
 import struct
 import subprocess
+
+from ota_signing import sign_manifest
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -68,8 +71,43 @@ def device_specs(scale, display):
     }
 
 
-def prepare(version, scale, display, selected_devices, channels, source_commit=None):
+def resolve_signing_key_dir(explicit):
+    if explicit is not None:
+        return explicit.resolve()
+    env = os.environ.get('KEGSCALE_OTA_KEY_DIR')
+    if env:
+        return Path(env).expanduser().resolve()
+    default = Path.home() / '.kegscale' / 'ota-keys'
+    return default if default.exists() else None
+
+
+def prepare(
+    version,
+    scale,
+    display,
+    selected_devices,
+    channels,
+    source_commit=None,
+    signing_key_dir=None,
+    require_signatures=False,
+):
     specs = device_specs(scale, display)
+    signing_key_dir = resolve_signing_key_dir(signing_key_dir)
+
+    if require_signatures and signing_key_dir is None:
+        raise SystemExit(
+            'Signed publication was required but no signing key directory was found.\n'
+            'Use --signing-key-dir or set KEGSCALE_OTA_KEY_DIR.'
+        )
+
+    if signing_key_dir is not None:
+        for channel in channels:
+            private_key = signing_key_dir / f'ota-{channel}-private.pem'
+            public_key = ROOT / 'keys' / f'ota-{channel}-public-key.json'
+            if not private_key.exists():
+                raise SystemExit(f'Missing {channel} private signing key: {private_key}')
+            if not public_key.exists():
+                raise SystemExit(f'Missing committed {channel} public key metadata: {public_key}')
 
     repos = {specs[name]['repo'] for name in selected_devices}
     for repo in repos:
@@ -161,14 +199,32 @@ def prepare(version, scale, display, selected_devices, channels, source_commit=N
                     + artifact.relative_to(ROOT).as_posix()
                 ),
             )
-            (directory / 'manifest.json').write_text(
-                json.dumps(manifest, indent=2) + '\n',
-                newline='\n',
+            manifest_path = directory / 'manifest.json'
+            manifest_path.write_bytes(
+                (json.dumps(manifest, indent=2) + '\n').encode('utf-8')
             )
+
+            signature_path = directory / 'manifest.sig'
+            signature_key_id = None
+            if signing_key_dir is not None:
+                signature = sign_manifest(
+                    manifest_path,
+                    channel,
+                    signing_key_dir / f'ota-{channel}-private.pem',
+                    ROOT / 'keys' / f'ota-{channel}-public-key.json',
+                    signature_path,
+                )
+                signature_key_id = signature['key_id']
+            elif signature_path.exists():
+                # Never leave a stale signature next to a newly generated manifest.
+                signature_path.unlink()
+
             inventory.append(
                 dict(
                     device=spec['family'],
                     channel=channel,
+                    signed=signature_key_id is not None,
+                    signature_key_id=signature_key_id,
                     **{
                         key: manifest[key]
                         for key in [
@@ -232,6 +288,20 @@ if __name__ == '__main__':
             'The commit must be an ancestor of the current checkout HEAD.'
         ),
     )
+    parser.add_argument(
+        '--signing-key-dir',
+        type=Path,
+        help=(
+            'Directory containing ota-dev-private.pem and/or '
+            'ota-production-private.pem. Defaults to KEGSCALE_OTA_KEY_DIR '
+            'or ~/.kegscale/ota-keys when present.'
+        ),
+    )
+    parser.add_argument(
+        '--require-signatures',
+        action='store_true',
+        help='Fail instead of preparing unsigned manifests.',
+    )
     args = parser.parse_args()
 
     prepare(
@@ -241,4 +311,6 @@ if __name__ == '__main__':
         args.devices or ['scale', 'display', 'touchscreen'],
         args.channels or ['dev', 'production'],
         args.source_commit,
+        args.signing_key_dir,
+        args.require_signatures,
     )
