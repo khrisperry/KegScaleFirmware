@@ -54,14 +54,34 @@ application name/version/target, calculates SHA-256, writes a commit-named image
 updates the selected channel manifest, and writes a scoped artifact inventory.
 Commit and push remain separate.
 
+For signed local OTA publishing, install the signing dependency once and generate
+the Dev and Production keys on this workstation. Private keys stay outside Git:
+
+```powershell
+cd C:\Users\kperry\Documents\GitHub\KegScaleFirmware
+python -m pip install cryptography
+python tools\ota_signing.py self-test
+python tools\ota_signing.py generate --channel dev --channel production --private-dir "$HOME\.kegscale\ota-keys"
+```
+
+Commit only the generated `keys/ota-*-public-key.json` files. Never commit the
+private PEM files under `$HOME\.kegscale\ota-keys`.
+
 For a Scale-only Dev OTA after local hardware validation:
 
 ```powershell
 cd C:\Users\kperry\Documents\GitHub\KegScaleFirmware
 git pull origin main
-python tools\prepare_release.py --version V1.3.12 --device scale --channel dev
+python tools\prepare_release.py --version V1.3.12 --device scale --channel dev --require-signatures
 git status
 ```
+
+When the default private-key directory exists, `prepare_release.py` signs the
+exact LF-normalized `manifest.json` bytes and writes a sibling `manifest.sig`.
+The signature uses ECDSA P-256/SHA-256 and a raw 64-byte `r || s` value encoded
+as Base64 in the sidecar JSON. The publisher verifies the signature immediately
+after creating it and removes stale signature files if an unsigned manifest is
+ever intentionally prepared.
 
 That command changes only `firmware/dev/esp32s3` and creates
 `docs/releases/V1.3.12-scale-dev-artifacts.json`. It does not modify Production,
