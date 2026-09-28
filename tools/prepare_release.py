@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """Prepare selected OTA artifacts from clean, locally validated source checkouts.
 
-Does not commit, push, tag, or delete older images. By default it preserves the
-historical behavior of preparing all devices for dev and production. Use
---device and --channel to limit the publication scope, for example:
+Does not commit, push, tag, or delete older images. This helper prepares signed
+Dev artifacts only. Production must be promoted from the exact signed Dev binary
+with promote_dev_to_production.py; Production is never rebuilt here. Use
+--device to limit the publication scope, for example:
 
   python tools/prepare_release.py --version V1.3.12 --device scale --channel dev
 
@@ -94,20 +95,26 @@ def prepare(
     specs = device_specs(scale, display)
     signing_key_dir = resolve_signing_key_dir(signing_key_dir)
 
-    if require_signatures and signing_key_dir is None:
+    if any(channel != 'dev' for channel in channels):
         raise SystemExit(
-            'Signed publication was required but no signing key directory was found.\n'
+            'Direct Production preparation is disabled. Prepare and validate Dev, '
+            'then use tools/promote_dev_to_production.py to promote the exact '
+            'signed Dev binary without rebuilding.'
+        )
+
+    if signing_key_dir is None:
+        raise SystemExit(
+            'OTA manifest signing is mandatory. No signing key directory was found.\n'
             'Use --signing-key-dir or set KEGSCALE_OTA_KEY_DIR.'
         )
 
-    if signing_key_dir is not None:
-        for channel in channels:
-            private_key = signing_key_dir / f'ota-{channel}-private.pem'
-            public_key = ROOT / 'keys' / f'ota-{channel}-public-key.json'
-            if not private_key.exists():
-                raise SystemExit(f'Missing {channel} private signing key: {private_key}')
-            if not public_key.exists():
-                raise SystemExit(f'Missing committed {channel} public key metadata: {public_key}')
+    for channel in channels:
+        private_key = signing_key_dir / f'ota-{channel}-private.pem'
+        public_key = ROOT / 'keys' / f'ota-{channel}-public-key.json'
+        if not private_key.exists():
+            raise SystemExit(f'Missing {channel} private signing key: {private_key}')
+        if not public_key.exists():
+            raise SystemExit(f'Missing committed {channel} public key metadata: {public_key}')
 
     repos = {specs[name]['repo'] for name in selected_devices}
     for repo in repos:
@@ -205,19 +212,14 @@ def prepare(
             )
 
             signature_path = directory / 'manifest.sig'
-            signature_key_id = None
-            if signing_key_dir is not None:
-                signature = sign_manifest(
-                    manifest_path,
-                    channel,
-                    signing_key_dir / f'ota-{channel}-private.pem',
-                    ROOT / 'keys' / f'ota-{channel}-public-key.json',
-                    signature_path,
-                )
-                signature_key_id = signature['key_id']
-            elif signature_path.exists():
-                # Never leave a stale signature next to a newly generated manifest.
-                signature_path.unlink()
+            signature = sign_manifest(
+                manifest_path,
+                channel,
+                signing_key_dir / f'ota-{channel}-private.pem',
+                ROOT / 'keys' / f'ota-{channel}-public-key.json',
+                signature_path,
+            )
+            signature_key_id = signature['key_id']
 
             inventory.append(
                 dict(
@@ -279,7 +281,10 @@ if __name__ == '__main__':
         action='append',
         choices=['dev', 'production'],
         dest='channels',
-        help='Channel to prepare. Repeat to select multiple. Default: both.',
+        help=(
+            'Channel to prepare. Only dev is accepted; production is retained '
+            'as a parser choice so old commands fail with an explicit promotion message.'
+        ),
     )
     parser.add_argument(
         '--source-commit',
@@ -300,7 +305,7 @@ if __name__ == '__main__':
     parser.add_argument(
         '--require-signatures',
         action='store_true',
-        help='Fail instead of preparing unsigned manifests.',
+        help='Compatibility flag; signatures are now always required.',
     )
     args = parser.parse_args()
 
@@ -309,7 +314,7 @@ if __name__ == '__main__':
         args.scale_root.resolve(),
         args.display_root.resolve(),
         args.devices or ['scale', 'display', 'touchscreen'],
-        args.channels or ['dev', 'production'],
+        args.channels or ['dev'],
         args.source_commit,
         args.signing_key_dir,
         args.require_signatures,
