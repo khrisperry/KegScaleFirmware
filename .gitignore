@@ -1,0 +1,5 @@
+# OTA private signing keys must never be committed.
+*private*.pem
+*.key
+.ota-keys/
+keys/private/
