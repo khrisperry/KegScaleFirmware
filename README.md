@@ -92,24 +92,36 @@ python tools\prepare_release.py --version V1.3.12 --device scale --channel dev -
 git status
 ```
 
-When the default private-key directory exists, `prepare_release.py` signs the
-exact LF-normalized `manifest.json` bytes and writes a sibling `manifest.sig`.
-The signature uses ECDSA P-256/SHA-256 and a raw 64-byte `r || s` value encoded
-as Base64 in the sidecar JSON. The publisher verifies the signature immediately
-after creating it and removes stale signature files if an unsigned manifest is
-ever intentionally prepared.
+`prepare_release.py` now requires a signing key and prepares **Dev only**.
+It signs the exact LF-normalized `manifest.json` bytes and writes a sibling
+`manifest.sig`. The signature uses ECDSA P-256/SHA-256 and a raw 64-byte
+`r || s` value encoded as Base64 in the sidecar JSON. Direct Production
+preparation is intentionally blocked.
 
 That command changes only `firmware/dev/esp32s3` and creates
 `docs/releases/V1.3.12-scale-dev-artifacts.json`. It does not modify Production,
-Touch, or e-paper manifests. Repeat `--device` or `--channel` when intentionally
-publishing multiple targets.
+Touch, or e-paper manifests. Repeat `--device` when intentionally publishing
+multiple Dev targets.
 
-For a coordinated release after all three devices have been validated, omitting
-`--device` and `--channel` retains the all-devices/all-channels behavior:
+After the Dev artifact has passed host tests and hardware validation, promote the
+**exact signed Dev binary** to Production without rebuilding it:
 
 ```powershell
-python tools\prepare_release.py --version V1.3.12
+python tools\promote_dev_to_production.py --version V1.3.12 --device scale
+git diff -- firmware\production\esp32s3
+git status
 ```
+
+The promotion helper first verifies the signed Dev manifest, validates the Dev
+binary size and SHA-256, requires the candidate version to be newer than the
+current Production version, copies those exact bytes into the Production path,
+writes Production provenance metadata, signs the Production manifest with the
+separate Production key, verifies that signature, and rechecks the Production
+binary SHA-256. It never invokes a compiler.
+
+For a coordinated release, prepare and validate each device in Dev first, then
+promote each validated device explicitly. Do not regenerate Production artifacts
+from source after hardware validation.
 
 Older images remain available for historical links; manifests identify the current
 release. Host tests do not establish physical battery, RF, or power-loss behavior.
