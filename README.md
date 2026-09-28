@@ -67,6 +67,22 @@ python tools\ota_signing.py generate --channel dev --channel production --privat
 Commit only the generated `keys/ota-*-public-key.json` files. Never commit the
 private PEM files under `$HOME\.kegscale\ota-keys`.
 
+Before first flashing firmware that requires signed manifests, sign the manifests
+that are already published. This does not rebuild or replace any firmware binary:
+
+```powershell
+python tools\sign_current_manifests.py
+git status
+git add firmware\dev\esp32s3\manifest.sig
+git add firmware\production\esp32s3\manifest.sig
+git add display\dev\esp32\manifest.sig
+git add display\production\esp32\manifest.sig
+git add touchscreen\dev\esp32s3\manifest.sig
+git add touchscreen\production\esp32s3\manifest.sig
+git commit -m "Sign current OTA manifests"
+git push origin main
+```
+
 For a Scale-only Dev OTA after local hardware validation:
 
 ```powershell
