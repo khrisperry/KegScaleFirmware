@@ -7,6 +7,7 @@ notes for the Scale and both display types. Source and developer documentation:
 
 - [Scale](https://github.com/khrisperry/KegScaleESP)
 - [E-paper and Wi-Fi Touch Display](https://github.com/khrisperry/KegScaleESPDisplay)
+- [V1.4.0 coordinated release notes](docs/releases/V1.4.0.md)
 - [Scale V1.4.0 artifact inventory](docs/releases/V1.4.0-scale-dev-production-artifacts.json)
 - [E-paper V1.4.0 artifact inventory](docs/releases/V1.4.0-display-dev-production-artifacts.json)
 - [Touch V1.4.0 artifact inventory](docs/releases/V1.4.0-touchscreen-dev-production-artifacts.json)
@@ -88,21 +89,11 @@ Beta intentionally reuses the **Dev private key** while carrying separate
 Beta outside the Production signing trust domain without adding another private
 key to manage.
 
-Before first flashing firmware that requires signed manifests, sign the manifests
-that are already published. This does not rebuild or replace any firmware binary:
-
-```powershell
-python tools\sign_current_manifests.py
-git status
-git add firmware\dev\esp32s3\manifest.sig
-git add firmware\production\esp32s3\manifest.sig
-git add display\dev\esp32\manifest.sig
-git add display\production\esp32\manifest.sig
-git add touchscreen\dev\esp32s3\manifest.sig
-git add touchscreen\production\esp32s3\manifest.sig
-git commit -m "Sign current OTA manifests"
-git push origin main
-```
+All currently published manifests are already signed. The
+`sign_current_manifests.py` helper remains available for migration/recovery of
+existing Dev/Production manifests without rebuilding firmware; normal releases
+use `prepare_release.py`, `promote_dev_to_beta.py`,
+`promote_dev_to_production.py`, and `sync_beta_to_production.py`.
 
 To reset all Beta streams to the current signed Production baseline:
 
