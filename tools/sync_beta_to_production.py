@@ -220,9 +220,14 @@ def main():
             "~/.kegscale/ota-keys."
         ),
     )
+    parser.add_argument(
+        "--allow-dirty",
+        action="store_true",
+        help=argparse.SUPPRESS,
+    )
     args = parser.parse_args()
 
-    if git("status", "--porcelain"):
+    if not args.allow_dirty and git("status", "--porcelain"):
         raise SystemExit(
             "KegScaleFirmware checkout must be clean before Beta synchronization"
         )
