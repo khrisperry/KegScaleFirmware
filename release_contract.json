@@ -1,0 +1,71 @@
+{
+  "schema": 1,
+  "current_production": {
+    "version": "V1.4.0",
+    "date": "2026-09-25"
+  },
+  "channels": {
+    "production": {
+      "published": true,
+      "signing_key": "ota-production-public-key.json"
+    },
+    "dev": {
+      "published": true,
+      "signing_key": "ota-dev-public-key.json"
+    },
+    "beta": {
+      "published": false,
+      "note": "Legacy Scale/e-paper Beta artifacts may exist, but Beta is not part of the coordinated signed release contract and no Touch Beta feed is published."
+    }
+  },
+  "devices": {
+    "scale": {
+      "family": "firmware",
+      "target": "esp32s3",
+      "app": "keg_scale_esp",
+      "chip_id": 9,
+      "source_repo": "KegScaleESP",
+      "source_version_file": "version.txt",
+      "manifest_fields": {
+        "protocol_version": 1,
+        "requires_display_protocol_min": 1,
+        "requires_display_protocol_max": 1
+      }
+    },
+    "display": {
+      "family": "display",
+      "target": "esp32",
+      "app": "keg_scale_display",
+      "chip_id": 0,
+      "hardware": "lilygo_t5_v2_3_1",
+      "source_repo": "KegScaleESPDisplay",
+      "source_version_file": "version.txt",
+      "manifest_fields": {
+        "protocol_version": 1,
+        "requires_scale_protocol_min": 1,
+        "requires_scale_protocol_max": 1
+      }
+    },
+    "touchscreen": {
+      "family": "touchscreen",
+      "target": "esp32s3",
+      "app": "keg_scale_touchscreen",
+      "chip_id": 9,
+      "hardware": "waveshare_esp32_s3_touch_lcd_4b",
+      "source_repo": "KegScaleESPDisplay",
+      "source_version_file": "touchscreen/version.txt",
+      "manifest_fields": {
+        "protocol_version": 1,
+        "requires_scale_wifi_protocol_min": 1,
+        "requires_scale_wifi_protocol_max": 1
+      }
+    }
+  },
+  "documentation_contract": {
+    "epaper_pairing": "The e-paper display generates a temporary six-digit code during an explicit five-minute Scale pairing window.",
+    "epaper_wake": "GPIO12 capacitive touch is armed with either the optional 180-second periodic check-in or the 3600-second safety timer.",
+    "touch_pairing": "The Wi-Fi touchscreen uses a six-character hexadecimal pairing code with controller protocol 1.",
+    "touch_power": "The Wi-Fi touchscreen is an externally powered always-awake controller.",
+    "beta_policy": "Production and Development are supported coordinated channels. Beta is legacy/unpublished for coordinated releases until a Touch Beta feed is intentionally added."
+  }
+}
