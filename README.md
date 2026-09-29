@@ -168,5 +168,16 @@ to the new Production baseline. When Beta is later used for release-candidate
 testing, it may intentionally move ahead of Production; the default baseline
 policy is to mirror Production when no candidate is under test.
 
+To stage a future signed release candidate from exact Dev bytes:
+
+```powershell
+python tools\promote_dev_to_beta.py --version V1.5.0 --device scale --device display --device touchscreen
+python tools\release_check.py --channel beta --version V1.5.0 --allow-beta-candidate --source-check
+```
+
+That path uses the Dev signing key, never the Production private key. After the
+candidate is released to Production, run `sync_beta_to_production.py` again to
+reset Beta to the new Production baseline.
+
 Older images remain available for historical links; manifests identify the current
 release. Host tests do not establish physical battery, RF, or power-loss behavior.
