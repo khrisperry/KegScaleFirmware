@@ -14,8 +14,12 @@
       "signing_key": "ota-dev-public-key.json"
     },
     "beta": {
-      "published": false,
-      "note": "Legacy Scale/e-paper Beta artifacts may exist, but Beta is not part of the coordinated signed release contract and no Touch Beta feed is published."
+      "published": true,
+      "signing_key": "ota-beta-public-key.json",
+      "signing_private_key_alias": "ota-dev-private.pem",
+      "trust_domain": "dev",
+      "baseline": "mirror-production",
+      "note": "Beta is a signed release-testing channel. It uses the Dev signing trust domain and normally mirrors current Production until intentionally advanced for release-candidate testing."
     }
   },
   "devices": {
@@ -66,6 +70,6 @@
     "epaper_wake": "GPIO12 capacitive touch is armed with either the optional 180-second periodic check-in or the 3600-second safety timer.",
     "touch_pairing": "The Wi-Fi touchscreen uses a six-character hexadecimal pairing code with controller protocol 1.",
     "touch_power": "The Wi-Fi touchscreen is an externally powered always-awake controller.",
-    "beta_policy": "Production and Development are supported coordinated channels. Beta is legacy/unpublished for coordinated releases until a Touch Beta feed is intentionally added."
+    "beta_policy": "Production, Beta, and Development are supported channels. Beta normally mirrors current Production and uses the Dev signing trust domain so it can later be advanced for release-candidate testing without exposing the Production private key."
   }
 }
