@@ -9,6 +9,7 @@ import os
 from pathlib import Path
 import shutil
 import subprocess
+import sys
 from urllib.parse import urlparse
 
 from ota_signing import sign_manifest, verify_manifest
@@ -246,12 +247,25 @@ def main():
     key_dir = resolve_signing_key_dir(args.signing_key_dir)
     stamp = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
-    for device in args.devices or list(DEVICE_PATHS):
+    selected_devices = args.devices or list(DEVICE_PATHS)
+    for device in selected_devices:
         promote_one(device, args.version, key_dir, stamp)
 
+    check_cmd = [
+        sys.executable,
+        str(ROOT / "tools" / "release_check.py"),
+        "--channel", "production",
+        "--version", args.version,
+        "--require-promotion",
+        "--skip-docs",
+    ]
+    for device in selected_devices:
+        check_cmd.extend(["--device", device])
+    subprocess.check_call(check_cmd)
+
     print()
-    print("Production promotion prepared locally. Review git diff/status before commit.")
-    print("No firmware was rebuilt.")
+    print("Production promotion prepared locally and exact-byte promotion check passed.")
+    print("Review git diff/status before commit. No firmware was rebuilt.")
 
 
 if __name__ == "__main__":
