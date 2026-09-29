@@ -1,14 +1,15 @@
 # Keg Scale firmware downloads
 
-Current coordinated release: **V1.3.4**, September 23, 2026.
+Current coordinated release: **V1.4.0**, September 25, 2026.
 
 This repository distributes OTA application images, channel manifests, and release
 notes for the Scale and both display types. Source and developer documentation:
 
 - [Scale](https://github.com/khrisperry/KegScaleESP)
 - [E-paper and Wi-Fi Touch Display](https://github.com/khrisperry/KegScaleESPDisplay)
-- [V1.3.4 release notes](docs/releases/V1.3.4.md)
-- [Published artifact hashes and source commits](docs/releases/V1.3.4-artifacts.json)
+- [Scale V1.4.0 artifact inventory](docs/releases/V1.4.0-scale-dev-production-artifacts.json)
+- [E-paper V1.4.0 artifact inventory](docs/releases/V1.4.0-display-dev-production-artifacts.json)
+- [Touch V1.4.0 artifact inventory](docs/releases/V1.4.0-touchscreen-dev-production-artifacts.json)
 
 ## Choose the correct device
 
@@ -25,11 +26,12 @@ first installation.
 
 ## Channels and updates
 
-Production corresponds to each source repository's `main` branch, Dev to `dev`,
-and Beta to `beta`. Distribution files for all channels live on this repository's
-`main` branch. V1.3.4 updates Production and Dev. Scale and e-paper retain their
-older V1.1.0 Beta manifests; a Touch Beta manifest is not currently published and
-is tracked in `KegScaleESPDisplay` issue #7.
+Production and Development are the supported coordinated release channels.
+Distribution files for both channels live on this repository's `main` branch.
+Production corresponds to validated source promoted from Dev; Development follows
+validated `dev` source checkpoints. Beta is legacy/unpublished for coordinated
+releases: older Scale/e-paper Beta artifacts may remain for history, but no Touch
+Beta manifest is published and release tooling does not prepare or validate Beta.
 
 Use the device's firmware settings to select a channel and check for updates.
 Update the Scale first, then e-paper and Touch. E-paper OTA is coordinated by the
@@ -38,16 +40,29 @@ Touch downloads its own update over Wi-Fi. Saved channel preferences are preserv
 Touch settings currently default to Dev when no preference is saved. Choose
 Production under Update for release-only updates. Refresh the browser after updating Scale.
 
-V1.3.4 includes phone-friendly Dashboard/Glass views, serving-size vessels,
-organized settings, guided independent display pairing, and reliability fixes.
-Guided e-paper touch calibration is removed. Default sensitivity is 1%; existing
-saved values are preserved. Scale weight calibration is unchanged.
+V1.4.0 is the current coordinated Production baseline for Scale, e-paper, and
+Touch. Development firmware may be newer while features and hardening are being
+validated. Guided e-paper touch calibration is removed; touch sensitivity remains
+manually configurable with a 1% default for new configurations. Scale weight
+calibration is unchanged.
 
 ## Publishing
 
 Source pushes do not automatically publish. Local releases use ESP-IDF 6.0.1,
 run the matching host/regression checks, and publish only hardware-validated
 artifacts from clean sibling source checkouts.
+
+The machine-readable release contract is [release_contract.json](release_contract.json).
+Run the local checker at any time to validate all published Dev/Production
+manifests, signatures, binary size/SHA/image identity, supported hardware,
+protocol ranges, coordinated Production version, and release-documentation
+markers:
+
+```powershell
+python tools\release_check.py
+```
+
+The checker does not require private signing keys.
 
 The helper reads the normal ESP-IDF `build` directories, validates the embedded
 application name/version/target, calculates SHA-256, writes a commit-named image,
@@ -88,7 +103,7 @@ For a Scale-only Dev OTA after local hardware validation:
 ```powershell
 cd C:\Users\kperry\Documents\GitHub\KegScaleFirmware
 git pull origin main
-python tools\prepare_release.py --version V1.3.12 --device scale --channel dev --require-signatures
+python tools\prepare_release.py --version V1.4.5 --device scale --channel dev --require-signatures
 git status
 ```
 
@@ -99,7 +114,7 @@ It signs the exact LF-normalized `manifest.json` bytes and writes a sibling
 preparation is intentionally blocked.
 
 That command changes only `firmware/dev/esp32s3` and creates
-`docs/releases/V1.3.12-scale-dev-artifacts.json`. It does not modify Production,
+`docs/releases/V1.4.5-scale-dev-artifacts.json`. It does not modify Production,
 Touch, or e-paper manifests. Repeat `--device` when intentionally publishing
 multiple Dev targets.
 
@@ -107,7 +122,7 @@ After the Dev artifact has passed host tests and hardware validation, promote th
 **exact signed Dev binary** to Production without rebuilding it:
 
 ```powershell
-python tools\promote_dev_to_production.py --version V1.3.12 --device scale
+python tools\promote_dev_to_production.py --version V1.4.5 --device scale
 git diff -- firmware\production\esp32s3
 git status
 ```
@@ -118,6 +133,12 @@ current Production version, copies those exact bytes into the Production path,
 writes Production provenance metadata, signs the Production manifest with the
 separate Production key, verifies that signature, and rechecks the Production
 binary SHA-256. It never invokes a compiler.
+
+Both `prepare_release.py` and `promote_dev_to_production.py` now invoke
+`release_check.py` automatically. Dev preparation verifies the selected source
+commit/version and signed artifact. Production promotion additionally proves that
+the promoted bytes are identical to the signed Dev artifact and that promotion
+provenance is present.
 
 For a coordinated release, prepare and validate each device in Dev first, then
 promote each validated device explicitly. Do not regenerate Production artifacts
