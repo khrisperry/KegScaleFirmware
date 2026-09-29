@@ -441,7 +441,7 @@ def validate_source_docs(scale_root, display_root):
             "Beta uses the Dev signing trust domain",
         ],
         roadmap: [
-            "P2 #12 release/documentation automation",
+            "release/documentation automation",
             "Signed OTA manifests",
             "MQTT TLS",
             "Download Support Bundle",
