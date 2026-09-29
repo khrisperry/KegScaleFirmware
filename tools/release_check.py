@@ -511,6 +511,14 @@ def main():
         help="Require Production to be an exact signed-Dev promotion with provenance.",
     )
     parser.add_argument(
+        "--allow-beta-candidate",
+        action="store_true",
+        help=(
+            "Allow Beta to intentionally differ from Production while validating "
+            "a release candidate."
+        ),
+    )
+    parser.add_argument(
         "--skip-docs",
         action="store_true",
         help="Skip firmware/source documentation contract checks.",
@@ -572,13 +580,13 @@ def main():
                 "for all selected devices"
             )
 
-    if "beta" in channels:
+    if "beta" in channels and not args.allow_beta_candidate:
         for device in devices:
             spec = contract["devices"][device]
             prod_manifest = manifests.get((device, "production"))
             if prod_manifest is None:
                 prod_manifest = validate_manifest(
-                    device, "production", spec, contract, args.version
+                    device, "production", spec, contract, None
                 )
             validate_beta_mirror(
                 device,
