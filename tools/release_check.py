@@ -11,6 +11,7 @@ import argparse
 from datetime import datetime
 import hashlib
 import json
+import os
 from pathlib import Path
 import struct
 import subprocess
@@ -26,20 +27,31 @@ ERRORS = []
 WARNINGS = []
 PASSES = []
 
+_USE_COLOR = sys.stdout.isatty() and not os.environ.get("NO_COLOR")
+_GREEN = "\033[32m" if _USE_COLOR else ""
+_RED = "\033[31m" if _USE_COLOR else ""
+_RESET = "\033[0m" if _USE_COLOR else ""
+
+
+def _status_line(prefix, message, color):
+    print(f"{color}{prefix}:{_RESET} {message}")
+
 
 def fail(message):
     ERRORS.append(message)
-    print(f"FAIL: {message}")
+    _status_line("FAIL", message, _RED)
 
 
 def warn(message):
     WARNINGS.append(message)
-    print(f"WARN: {message}")
+    # Warnings are non-failing release-check results, but every result line keeps
+    # the requested PASS:/FAIL: contract.
+    _status_line("PASS", f"WARNING: {message}", _GREEN)
 
 
 def passed(message):
     PASSES.append(message)
-    print(f"PASS: {message}")
+    _status_line("PASS", message, _GREEN)
 
 
 def load_json(path):
@@ -590,12 +602,6 @@ def main():
     scale_root = args.scale_root.resolve()
     display_root = args.display_root.resolve()
 
-    print("Keg Scale release validation")
-    print(f"  devices: {', '.join(devices)}")
-    print(f"  channels: {', '.join(channels)}")
-    if args.version:
-        print(f"  required version: {args.version}")
-
     manifests = {}
     for device in devices:
         spec = contract["devices"][device]
@@ -673,11 +679,14 @@ def main():
         validate_firmware_docs(contract)
         validate_source_docs(scale_root, display_root)
 
-    print()
-    print(
+    summary = (
         f"Release check summary: {len(PASSES)} pass, "
         f"{len(WARNINGS)} warning, {len(ERRORS)} failure"
     )
+    if ERRORS:
+        _status_line("FAIL", summary, _RED)
+    else:
+        _status_line("PASS", summary, _GREEN)
     return 1 if ERRORS else 0
 
 
