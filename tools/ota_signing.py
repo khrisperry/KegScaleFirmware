@@ -205,7 +205,7 @@ def main():
 
     p_sign = sub.add_parser("sign", help="Sign one manifest")
     p_sign.add_argument("--manifest", type=Path, required=True)
-    p_sign.add_argument("--channel", choices=["dev", "production"], required=True)
+    p_sign.add_argument("--channel", choices=["dev", "beta", "production"], required=True)
     p_sign.add_argument("--private-key", type=Path, required=True)
     p_sign.add_argument("--public-key", type=Path, required=True)
     p_sign.add_argument("--output", type=Path, required=True)
