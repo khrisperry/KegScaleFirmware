@@ -64,7 +64,11 @@ def image_identity(data):
 
 
 def expected_branch(channel):
-    return "main" if channel == "production" else "dev"
+    if channel == "production":
+        return "main"
+    if channel == "beta":
+        return "beta"
+    return "dev"
 
 
 def expected_prefix(spec, channel):
@@ -346,6 +350,51 @@ def validate_promotion(device, prod_manifest, dev_manifest, spec):
         fail(f"{device}/production: Dev/Production artifact missing for promotion proof")
 
 
+def validate_beta_mirror(device, beta_manifest, prod_manifest, spec):
+    if beta_manifest is None or prod_manifest is None:
+        return
+
+    if beta_manifest.get("mirrored_from") != "production":
+        fail(f"{device}/beta: missing mirrored_from='production'")
+    if beta_manifest.get("source_branch") != "main":
+        fail(f"{device}/beta: missing source_branch='main'")
+
+    prod_manifest_path = (
+        ROOT / spec["family"] / "production" / spec["target"] / "manifest.json"
+    )
+    expected_manifest_sha = hashlib.sha256(prod_manifest_path.read_bytes()).hexdigest()
+    if beta_manifest.get("mirrored_manifest_sha256") != expected_manifest_sha:
+        fail(
+            f"{device}/beta: mirrored_manifest_sha256 does not match "
+            "current signed Production manifest"
+        )
+
+    for field in ["version", "commit", "size", "sha256"]:
+        if beta_manifest.get(field) != prod_manifest.get(field):
+            fail(
+                f"{device}/beta: {field} differs from Production "
+                f"({beta_manifest.get(field)!r} != {prod_manifest.get(field)!r})"
+            )
+
+    beta_name = Path(urlparse(beta_manifest.get("url", "")).path).name
+    prod_name = Path(urlparse(prod_manifest.get("url", "")).path).name
+    if beta_name != prod_name:
+        fail(
+            f"{device}/beta: binary filename differs from Production "
+            f"({beta_name!r} != {prod_name!r})"
+        )
+
+    beta_file = ROOT / spec["family"] / "beta" / spec["target"] / beta_name
+    prod_file = ROOT / spec["family"] / "production" / spec["target"] / prod_name
+    if beta_file.is_file() and prod_file.is_file():
+        if beta_file.read_bytes() != prod_file.read_bytes():
+            fail(f"{device}/beta: Beta bytes differ from Production")
+        else:
+            passed(f"{device}/beta: exact Production binary bytes preserved")
+    else:
+        fail(f"{device}/beta: Beta/Production artifact missing for mirror proof")
+
+
 def validate_firmware_docs(contract):
     readme = ROOT / "README.md"
     if not readme.is_file():
@@ -365,8 +414,9 @@ def validate_firmware_docs(contract):
         passed("firmware README current coordinated release matches contract")
 
     required_phrases = [
-        "Production and Development are the supported coordinated release channels.",
-        "Beta is legacy/unpublished",
+        "Production, Beta, and Development are supported release channels.",
+        "Beta normally mirrors current Production",
+        "sync_beta_to_production.py",
         "promote_dev_to_production.py",
         "release_check.py",
     ]
@@ -399,7 +449,7 @@ def validate_source_docs(scale_root, display_root):
             "Waveshare ESP32-S3-Touch-LCD-4B",
             "six-character hexadecimal pairing code",
             "protocol 1",
-            "no Touch Beta manifest",
+            "Beta normally mirrors current Production",
         ],
     }
 
@@ -442,9 +492,9 @@ def main():
     parser.add_argument(
         "--channel",
         action="append",
-        choices=["dev", "production"],
+        choices=["dev", "beta", "production"],
         dest="channels",
-        help="Channel to check. Repeat as needed. Default: dev and production.",
+        help="Channel to check. Repeat as needed. Default: dev, beta, and production.",
     )
     parser.add_argument(
         "--version",
@@ -482,7 +532,7 @@ def main():
         return 1
 
     devices = args.devices or list(contract["devices"])
-    channels = args.channels or ["dev", "production"]
+    channels = args.channels or ["dev", "beta", "production"]
     scale_root = args.scale_root.resolve()
     display_root = args.display_root.resolve()
 
@@ -520,6 +570,21 @@ def main():
             passed(
                 f"coordinated Production version is {expected_production} "
                 "for all selected devices"
+            )
+
+    if "beta" in channels:
+        for device in devices:
+            spec = contract["devices"][device]
+            prod_manifest = manifests.get((device, "production"))
+            if prod_manifest is None:
+                prod_manifest = validate_manifest(
+                    device, "production", spec, contract, args.version
+                )
+            validate_beta_mirror(
+                device,
+                manifests.get((device, "beta")),
+                prod_manifest,
+                spec,
             )
 
     if args.source_check:
