@@ -13,11 +13,11 @@ notes for the Scale and both display types. Source and developer documentation:
 
 ## Choose the correct device
 
-| Device | Hardware / target | Production manifest | Dev manifest |
-| --- | --- | --- | --- |
-| Scale | ESP32-S3 | [Production](firmware/production/esp32s3/manifest.json) | [Dev](firmware/dev/esp32s3/manifest.json) |
-| E-paper | LILYGO T5 V2.3.1 / ESP32 | [Production](display/production/esp32/manifest.json) | [Dev](display/dev/esp32/manifest.json) |
-| Touch Display | Waveshare ESP32-S3-Touch-LCD-4B / ESP32-S3 | [Production](touchscreen/production/esp32s3/manifest.json) | [Dev](touchscreen/dev/esp32s3/manifest.json) |
+| Device | Hardware / target | Production manifest | Beta manifest | Dev manifest |
+| --- | --- | --- | --- | --- |
+| Scale | ESP32-S3 | [Production](firmware/production/esp32s3/manifest.json) | [Beta](firmware/beta/esp32s3/manifest.json) | [Dev](firmware/dev/esp32s3/manifest.json) |
+| E-paper | LILYGO T5 V2.3.1 / ESP32 | [Production](display/production/esp32/manifest.json) | [Beta](display/beta/esp32/manifest.json) | [Dev](display/dev/esp32/manifest.json) |
+| Touch Display | Waveshare ESP32-S3-Touch-LCD-4B / ESP32-S3 | [Production](touchscreen/production/esp32s3/manifest.json) | [Beta](touchscreen/beta/esp32s3/manifest.json) | [Dev](touchscreen/dev/esp32s3/manifest.json) |
 
 Images are not interchangeable. Any legacy target directories are historical;
 current Scale firmware supports ESP32-S3. OTA images alone are not first-install
@@ -26,12 +26,13 @@ first installation.
 
 ## Channels and updates
 
-Production and Development are the supported coordinated release channels.
-Distribution files for both channels live on this repository's `main` branch.
-Production corresponds to validated source promoted from Dev; Development follows
-validated `dev` source checkpoints. Beta is legacy/unpublished for coordinated
-releases: older Scale/e-paper Beta artifacts may remain for history, but no Touch
-Beta manifest is published and release tooling does not prepare or validate Beta.
+Production, Beta, and Development are supported release channels. Distribution
+files for all three channels live on this repository's `main` branch. Production
+corresponds to validated source promoted from Dev; Development follows validated
+`dev` source checkpoints. **Beta normally mirrors current Production** on all
+three devices and is kept ready for future release-candidate testing. Beta uses
+the Dev signing trust domain, not the Production private key, so a future Beta
+candidate can be staged without granting Production signing authority.
 
 Use the device's firmware settings to select a channel and check for updates.
 Update the Scale first, then e-paper and Touch. E-paper OTA is coordinated by the
@@ -53,10 +54,10 @@ run the matching host/regression checks, and publish only hardware-validated
 artifacts from clean sibling source checkouts.
 
 The machine-readable release contract is [release_contract.json](release_contract.json).
-Run the local checker at any time to validate all published Dev/Production
-manifests, signatures, binary size/SHA/image identity, supported hardware,
-protocol ranges, coordinated Production version, and release-documentation
-markers:
+Run the local checker at any time to validate all published
+Dev/Beta/Production manifests, signatures, binary size/SHA/image identity,
+supported hardware, protocol ranges, coordinated Production version, Beta's
+exact Production mirror, and release-documentation markers:
 
 ```powershell
 python tools\release_check.py
@@ -82,6 +83,11 @@ python tools\ota_signing.py generate --channel dev --channel production --privat
 Commit only the generated `keys/ota-*-public-key.json` files. Never commit the
 private PEM files under `$HOME\.kegscale\ota-keys`.
 
+Beta intentionally reuses the **Dev private key** while carrying separate
+`keys/ota-beta-public-key.json` metadata whose channel is `beta`. This keeps
+Beta outside the Production signing trust domain without adding another private
+key to manage.
+
 Before first flashing firmware that requires signed manifests, sign the manifests
 that are already published. This does not rebuild or replace any firmware binary:
 
@@ -97,6 +103,19 @@ git add touchscreen\production\esp32s3\manifest.sig
 git commit -m "Sign current OTA manifests"
 git push origin main
 ```
+
+To reset all Beta streams to the current signed Production baseline:
+
+```powershell
+python tools\sync_beta_to_production.py
+python tools\release_check.py
+git status
+```
+
+The Beta sync verifies each Production signature and binary first, copies the
+exact Production bytes into the matching Beta path, rewrites only Beta
+channel/path/provenance metadata, signs with the Dev private key under the Beta
+public-key alias, and verifies the resulting Beta signature.
 
 For a Scale-only Dev OTA after local hardware validation:
 
@@ -143,6 +162,11 @@ provenance is present.
 For a coordinated release, prepare and validate each device in Dev first, then
 promote each validated device explicitly. Do not regenerate Production artifacts
 from source after hardware validation.
+
+After Production is promoted, run `sync_beta_to_production.py` so Beta returns
+to the new Production baseline. When Beta is later used for release-candidate
+testing, it may intentionally move ahead of Production; the default baseline
+policy is to mirror Production when no candidate is under test.
 
 Older images remain available for historical links; manifests identify the current
 release. Host tests do not establish physical battery, RF, or power-loss behavior.
