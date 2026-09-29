@@ -20,6 +20,7 @@ import os
 from pathlib import Path
 import struct
 import subprocess
+import sys
 
 from ota_signing import sign_manifest
 
@@ -254,6 +255,19 @@ def prepare(
 
     print(json.dumps(inventory, indent=2))
     print(f'Artifact inventory: {report}')
+
+    check_cmd = [
+        sys.executable,
+        str(ROOT / 'tools' / 'release_check.py'),
+        '--channel', 'dev',
+        '--version', version,
+        '--source-check',
+        '--skip-docs',
+    ]
+    for name in selected_devices:
+        check_cmd.extend(['--device', name])
+    subprocess.check_call(check_cmd)
+    print('Release metadata/signature/source check: PASS')
 
 
 if __name__ == '__main__':
