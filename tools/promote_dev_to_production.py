@@ -251,10 +251,21 @@ def main():
     for device in selected_devices:
         promote_one(device, args.version, key_dir, stamp)
 
+    beta_sync_cmd = [
+        sys.executable,
+        str(ROOT / "tools" / "sync_beta_to_production.py"),
+        "--allow-dirty",
+        "--signing-key-dir", str(key_dir),
+    ]
+    for device in selected_devices:
+        beta_sync_cmd.extend(["--device", device])
+    subprocess.check_call(beta_sync_cmd)
+
     check_cmd = [
         sys.executable,
         str(ROOT / "tools" / "release_check.py"),
         "--channel", "production",
+        "--channel", "beta",
         "--version", args.version,
         "--require-promotion",
         "--skip-docs",
@@ -264,7 +275,10 @@ def main():
     subprocess.check_call(check_cmd)
 
     print()
-    print("Production promotion prepared locally and exact-byte promotion check passed.")
+    print(
+        "Production promotion prepared locally, Beta reset to the same exact "
+        "Production bytes, and validation passed."
+    )
     print("Review git diff/status before commit. No firmware was rebuilt.")
 
 
