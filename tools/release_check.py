@@ -426,16 +426,36 @@ def validate_firmware_docs(contract):
 
 
 def validate_source_docs(scale_root, display_root):
+    scale_readme = scale_root / "README.md"
     roadmap = scale_root / "ROADMAP.md"
+    hardening = scale_root / "docs" / "system-hardening-plan.md"
+    wifi_controller = scale_root / "docs" / "wifi-controller.md"
     epaper_readme = display_root / "README.md"
+    epaper_architecture = display_root / "docs" / "architecture.md"
     touch_readme = display_root / "touchscreen" / "README.md"
 
     required = {
+        scale_readme: [
+            "Dev/Beta/Production OTA trust model",
+            "GitHub Actions are optional",
+            "Beta uses the Dev signing trust domain",
+        ],
         roadmap: [
             "P2 #12 release/documentation automation",
             "Signed OTA manifests",
             "MQTT TLS",
             "Download Support Bundle",
+        ],
+        hardening: [
+            "#### 11. Strengthen the OTA supply chain — COMPLETE",
+            "#### 12. Clean up documentation and release metadata — COMPLETE",
+            "24 pass, 0 warning, 0 failure",
+        ],
+        wifi_controller: [
+            "six-character hexadecimal code",
+            "optional web administrator PIN/session",
+            "two independent Scale profiles",
+            "Simultaneous Wi-Fi touchscreen plus BLE e-paper operation",
         ],
         epaper_readme: [
             "six-digit pairing code",
@@ -444,6 +464,11 @@ def validate_source_docs(scale_root, display_root):
             "3-minute scheduled check-in",
             "one-hour safety timer",
             "LILYGO T5 V2.3.1",
+        ],
+        epaper_architecture: [
+            "pairing is web-driven",
+            "firmware default of 1%",
+            "signed repository manifest",
         ],
         touch_readme: [
             "Waveshare ESP32-S3-Touch-LCD-4B",
@@ -454,13 +479,34 @@ def validate_source_docs(scale_root, display_root):
     }
 
     forbidden = {
+        scale_readme: [
+            "# KegScaleESP - V1.3.4",
+            "Dev V0.0.31 supports",
+            "Publish OTA Firmware GitHub Actions workflow",
+        ],
         roadmap: [
             "Finish the Touch `main_wrapper.cpp` removal checkpoint",
             "Add signed OTA manifests and protected production release gates.",
             "Add MQTT TLS certificate trust/configuration",
         ],
+        wifi_controller: [
+            "Scale V0.0.31 introduces",
+            "does not add authentication to the existing web administration interface",
+            "physical simultaneous Wi-Fi/BLE behavior still needs device testing",
+        ],
+        epaper_readme: [
+            "## V1.3.4 release",
+            "## Current bring-up behavior",
+        ],
+        epaper_architecture: [
+            "current bring-up selection",
+            "falls back to 3% with older scale firmware",
+        ],
         touch_readme: [
             "# Wi-Fi touchscreen controller - V1.3.4",
+            "idf.py -p COM13 flash monitor",
+            "no Touch Beta manifest",
+            "The manually dispatched `Wi-Fi Touchscreen` workflow",
         ],
     }
 
