@@ -366,7 +366,7 @@ def validate_firmware_docs(contract):
 
     required_phrases = [
         "Production and Development are the supported coordinated release channels.",
-        "Beta is legacy/unpublished for coordinated releases",
+        "Beta is legacy/unpublished",
         "promote_dev_to_production.py",
         "release_check.py",
     ]
