@@ -48,6 +48,33 @@ validated. Guided e-paper touch calibration is removed; touch sensitivity remain
 manually configurable with a 1% default for new configurations. Scale weight
 calibration is unchanged.
 
+## Full regression suite
+
+From PowerShell, one command runs the complete non-destructive regression set
+across all three repositories:
+
+```powershell
+cd C:\Users\kperry\Documents\GitHub\KegScaleFirmware
+python tools\run_all_tests.py
+```
+
+The runner expects sibling `KegScaleESP` and `KegScaleESPDisplay` checkouts.
+On Windows it uses WSL for the C/C++/Linux host suites and the current Windows
+Python for the Playwright web/UI regression plus firmware release/signing checks.
+It runs:
+
+- the complete Scale host/guard/crypto regression suite;
+- the Scale Playwright browser/layout regression;
+- the complete e-paper and Touch host/guard/crypto regression suite, including
+  the Touch pairing-overlay regression;
+- `release_check.py` across signed Dev/Beta/Production feeds and docs; and
+- the OTA signing/tamper self-test.
+
+Every result line begins with `PASS:` or `FAIL:`. PASS is green and FAIL is
+red in an interactive terminal. The runner continues through all suites after an
+individual failure so the final summary shows the complete result set. Use
+`NO_COLOR=1` or `--no-color` when ANSI colors are not wanted.
+
 ## Publishing
 
 Source pushes do not automatically publish. Local releases use ESP-IDF 6.0.1,
