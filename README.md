@@ -67,7 +67,8 @@ It runs:
 - the Scale Playwright browser/layout regression;
 - the complete e-paper and Touch host/guard/crypto regression suite, including
   the Touch pairing-overlay regression;
-- `release_check.py` across signed Dev/Beta/Production feeds and docs; and
+- `release_check.py --source-check` across signed Dev/Beta/Production feeds,
+  exact source commits/versions, and docs; and
 - the OTA signing/tamper self-test.
 
 Every result line begins with `PASS:` or `FAIL:`. PASS is green and FAIL is
