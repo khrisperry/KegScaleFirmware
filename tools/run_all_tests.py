@@ -132,7 +132,7 @@ def windows_to_wsl_path(path: Path) -> str | None:
     """Convert a normal Windows drive path without passing backslashes to WSL."""
 
     value = str(path.resolve())
-    match = re.match(r"^([A-Za-z]):[\\\\/](.*)$", value)
+    match = re.match(r"^([A-Za-z]):[\\/](.*)$", value)
     if not match:
         fail_line(
             f"WSL path conversion supports Windows drive paths only; got {value}"
@@ -140,7 +140,7 @@ def windows_to_wsl_path(path: Path) -> str | None:
         return None
 
     drive = match.group(1).lower()
-    tail = match.group(2).replace("\\\\", "/")
+    tail = match.group(2).replace("\\", "/")
     return f"/mnt/{drive}/{tail}"
 
 
