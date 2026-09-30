@@ -691,4 +691,15 @@ def main():
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    try:
+        sys.exit(main())
+    except KeyboardInterrupt:
+        _status_line("FAIL", "Release check interrupted", _RED)
+        raise SystemExit(130)
+    except Exception as exc:
+        _status_line(
+            "FAIL",
+            f"Release check internal error: {type(exc).__name__}: {exc}",
+            _RED,
+        )
+        raise SystemExit(1)
