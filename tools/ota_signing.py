@@ -5,12 +5,23 @@ import argparse
 import base64
 import hashlib
 import json
+import os
+import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 ALGORITHM = "ECDSA-P256-SHA256"
 SIGNATURE_FORMAT = 1
 PUBLIC_KEY_FORMAT = 1
+
+_USE_COLOR = sys.stdout.isatty() and not os.environ.get("NO_COLOR")
+_GREEN = "\033[32m" if _USE_COLOR else ""
+_RED = "\033[31m" if _USE_COLOR else ""
+_RESET = "\033[0m" if _USE_COLOR else ""
+
+
+def _status_line(prefix, message, color):
+    print(f"{color}{prefix}:{_RESET} {message}")
 
 
 def _crypto():
@@ -191,7 +202,7 @@ def self_test():
     assert not verify_bytes(key.public_key(), payload + b" ", signature)
     assert not verify_bytes(wrong_key.public_key(), payload, signature)
     assert not verify_bytes(key.public_key(), payload, signature[:-1])
-    print("PASS: OTA signing self-test (valid, tampered, wrong-key, truncated)")
+    _status_line("PASS", "OTA signing self-test (valid, tampered, wrong-key, truncated)", _GREEN)
 
 
 def main():
@@ -226,7 +237,10 @@ def main():
         print(f"Signed {args.manifest} -> {args.output}")
     elif args.command == "verify":
         ok = verify_manifest(args.manifest, args.signature, args.public_key)
-        print("VALID" if ok else "INVALID")
+        if ok:
+            _status_line("PASS", "OTA manifest signature valid", _GREEN)
+        else:
+            _status_line("FAIL", "OTA manifest signature invalid", _RED)
         raise SystemExit(0 if ok else 1)
     else:
         self_test()
