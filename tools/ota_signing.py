@@ -247,4 +247,12 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        _status_line("FAIL", "OTA signing command interrupted", _RED)
+        raise SystemExit(130)
+    except AssertionError as exc:
+        detail = str(exc) or "self-test assertion failed"
+        _status_line("FAIL", f"OTA signing self-test: {detail}", _RED)
+        raise SystemExit(1)
