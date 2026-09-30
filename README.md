@@ -64,6 +64,10 @@ exact Production mirror, and release-documentation markers:
 python tools\release_check.py
 ```
 
+Release-check result lines always begin with `PASS:` or `FAIL:`; interactive
+terminals show PASS in green and FAIL in red. Set `NO_COLOR=1` to disable ANSI
+color without changing the prefixes.
+
 The checker does not require private signing keys.
 
 The helper reads the normal ESP-IDF `build` directories, validates the embedded
