@@ -1,0 +1,13 @@
+[
+  {
+    "device": "touchscreen",
+    "channel": "dev",
+    "signed": true,
+    "signature_key_id": "b22d59da8a84e17f",
+    "version": "V1.4.11",
+    "commit": "b3a8dad60c61c5f9d016f9e8e98a57475b0a01bb",
+    "size": 1907088,
+    "sha256": "9d1b777c9ded8b7cefce10f5daa1e15bf873998ebe97e280debaa0f7d35d826b",
+    "url": "https://raw.githubusercontent.com/khrisperry/KegScaleFirmware/main/touchscreen/dev/esp32s3/keg_scale_touchscreen-b3a8dad60c61.bin"
+  }
+]
