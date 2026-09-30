@@ -242,7 +242,11 @@ def main() -> int:
             ("Display/e-paper/Touch host regressions", display_cmd, display),
             (
                 "Firmware signed release validation",
-                [sys.executable, str(firmware / "tools" / "release_check.py")],
+                [
+                    sys.executable,
+                    str(firmware / "tools" / "release_check.py"),
+                    "--source-check",
+                ],
                 firmware,
             ),
             (
