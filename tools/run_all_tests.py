@@ -128,29 +128,49 @@ def wsl_executable() -> str | None:
     return shutil.which("wsl.exe") or shutil.which("wsl")
 
 
-def wsl_path(wsl: str, path: Path) -> str | None:
+def windows_to_wsl_path(path: Path) -> str | None:
+    """Convert a normal Windows drive path without passing backslashes to WSL."""
+
+    value = str(path.resolve())
+    match = re.match(r"^([A-Za-z]):[\\\\/](.*)$", value)
+    if not match:
+        fail_line(
+            f"WSL path conversion supports Windows drive paths only; got {value}"
+        )
+        return None
+
+    drive = match.group(1).lower()
+    tail = match.group(2).replace("\\\\", "/")
+    return f"/mnt/{drive}/{tail}"
+
+
+def wsl_directory_available(wsl: str, windows_path: Path, linux_path: str) -> bool:
+    quoted = linux_path.replace("'", "'\\''")
     completed = subprocess.run(
-        [wsl, "wslpath", "-a", str(path)],
+        [wsl, "bash", "-lc", f"test -d '{quoted}'"],
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
         text=True,
         errors="replace",
         check=False,
     )
-    if completed.returncode != 0:
-        detail = clean_line(completed.stdout or "") or "wslpath failed"
-        fail_line(f"WSL path conversion for {path}: {detail}")
-        return None
-    value = clean_line(completed.stdout or "")
-    if not value:
-        fail_line(f"WSL path conversion for {path}: empty path")
-        return None
-    return value
+    if completed.returncode == 0:
+        pass_line(f"WSL path ready: {windows_path} -> {linux_path}")
+        return True
+
+    detail = clean_line(completed.stdout or "")
+    suffix = f": {detail}" if detail else ""
+    fail_line(
+        f"WSL cannot access {windows_path} as {linux_path}{suffix}"
+    )
+    return False
 
 
 def wsl_bash_command(wsl: str, repo: Path, script: str) -> list[str] | None:
-    translated = wsl_path(wsl, repo)
+    translated = windows_to_wsl_path(repo)
     if translated is None:
+        return None
+    if not wsl_directory_available(wsl, repo, translated):
         return None
     quoted = translated.replace("'", "'\\''")
     return [
