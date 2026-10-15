@@ -2,7 +2,17 @@
   "schema": 1,
   "current_production": {
     "version": "V1.4.0",
-    "date": "2026-09-25"
+    "date": "2026-09-25",
+    "device_versions": {
+      "scale": "V1.4.7",
+      "display": "V1.4.0",
+      "touchscreen": "V1.4.0"
+    },
+    "device_release_dates": {
+      "scale": "2026-10-15",
+      "display": "2026-09-25",
+      "touchscreen": "2026-09-25"
+    }
   },
   "channels": {
     "production": {
