@@ -425,6 +425,19 @@ def validate_firmware_docs(contract):
     else:
         passed("firmware README current coordinated release matches contract")
 
+    independent_versions = contract["current_production"].get("device_versions")
+    if independent_versions is not None:
+        summary = (
+            "Current Production firmware: "
+            f"**Scale {independent_versions['scale']}**, "
+            f"**e-paper {independent_versions['display']}**, "
+            f"**Wi-Fi touchscreen {independent_versions['touchscreen']}**."
+        )
+        if summary not in text:
+            fail(f"README device-version summary is stale; expected: {summary}")
+        else:
+            passed("firmware README individual Production versions match contract")
+
     required_phrases = [
         "Production, Beta, and Development are supported release channels.",
         "Beta normally mirrors current Production",
@@ -615,22 +628,36 @@ def main():
             )
 
     if "production" in channels and not args.version:
-        production_versions = {
-            manifests[(device, "production")].get("version")
-            for device in devices
-            if manifests.get((device, "production"))
-        }
-        expected_production = contract["current_production"]["version"]
-        if production_versions != {expected_production}:
-            fail(
-                "Production manifests do not match coordinated release contract: "
-                f"found={sorted(production_versions)} expected={expected_production}"
-            )
+        # A coordinated release is the common baseline, but Scale/e-paper/Touch
+        # can advance independently. Require every supported device to have
+        # an explicit expected version when device_versions is present.
+        baseline = contract["current_production"]["version"]
+        declared_versions = contract["current_production"].get("device_versions")
+        if declared_versions is None:
+            declared_versions = {
+                device: baseline for device in contract["devices"]
+            }
+        if (not isinstance(declared_versions, dict)
+                or set(declared_versions) != set(contract["devices"])
+                or not all(isinstance(v, str) and v for v in declared_versions.values())):
+            fail("current_production.device_versions must name every device with a version")
         else:
-            passed(
-                f"coordinated Production version is {expected_production} "
-                "for all selected devices"
-            )
+            for device in devices:
+                manifest = manifests.get((device, "production"))
+                if manifest is None:
+                    continue
+                actual = manifest.get("version")
+                expected = declared_versions[device]
+                if actual != expected:
+                    fail(
+                        f"{device}/production: version {actual!r} does not match "
+                        f"release contract expected {expected!r}"
+                    )
+                else:
+                    passed(
+                        f"{device}/production: version {expected} matches "
+                        "per-device release contract"
+                    )
 
     if "beta" in channels and not args.allow_beta_candidate:
         for device in devices:
