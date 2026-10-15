@@ -2,6 +2,11 @@
 
 Current coordinated release: **V1.4.0**, September 25, 2026.
 
+Current Production firmware: **Scale V1.4.7**, **e-paper V1.4.0**, **Wi-Fi touchscreen V1.4.0**.
+
+The **Scale-only V1.4.7** update advances the Scale without changing either
+companion display image. See [Scale V1.4.7 release notes](docs/releases/V1.4.7-scale.md).
+
 This repository distributes OTA application images, channel manifests, and release
 notes for the Scale and both display types. Source and developer documentation:
 
@@ -42,9 +47,10 @@ Touch downloads its own update over Wi-Fi. Saved channel preferences are preserv
 Touch settings currently default to Dev when no preference is saved. Choose
 Production under Update for release-only updates. Refresh the browser after updating Scale.
 
-V1.4.0 is the current coordinated Production baseline for Scale, e-paper, and
-Touch. Development firmware may be newer while features and hardening are being
-validated. Guided e-paper touch calibration is removed; touch sensitivity remains
+V1.4.0 remains the last coordinated all-device baseline, while Scale V1.4.7
+is the current Scale Production release. The e-paper and Wi-Fi touchscreen
+Production releases remain V1.4.0. Development firmware may be newer while
+features and hardening are being validated. Guided e-paper touch calibration is removed; touch sensitivity remains
 manually configurable with a 1% default for new configurations. Scale weight
 calibration is unchanged.
 
