@@ -89,14 +89,18 @@ git pull origin main
 python tools\publish_validated_dev.py
 ```
 
-The checkpoint-specific helper validates the clean source commits, embedded
-versions/targets, OTA slot sizes, current signed feeds, and matching Dev key.
+The checkpoint-specific helper validates clean selected-project inputs against
+the tested source commits, embedded versions/targets, OTA slot sizes, current
+signed feeds, and matching Dev key.
 It prepares and verifies both signed releases in an isolated Git worktree,
 then retains the new image and the previously published image per Dev stream.
 It commits the two releases, signatures, inventories and older-image deletions
 together and pushes once. No rebuild, private-key upload, or source checkout
 modification is performed. Existing unrelated local firmware changes are left
-alone. A concurrent remote change rejects the push rather than overwriting it.
+alone. The independent `touchpour/` project may have staged, unstaged, untracked
+work or newer commits; none of it is modified or published. Touchscreen, root
+and shared build inputs must still match the tested checkpoint and be clean.
+A concurrent remote change rejects the push rather than overwriting it.
 
 Expected retained pairs: Scale V1.4.14 + V1.4.7; Touch V1.4.23 + V1.4.14.
 Production, Beta and e-paper feeds are outside the publication scope.

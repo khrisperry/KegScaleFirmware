@@ -17,7 +17,7 @@ import tempfile
 from urllib.parse import urlparse
 
 from ota_signing import load_private_key, load_public_metadata, public_key_raw
-from prepare_release import image_identity
+from prepare_release import image_identity, source_paths
 
 ROOT = Path(__file__).resolve().parents[1]
 CHECKPOINTS = {
@@ -85,11 +85,18 @@ def inspect_sources(sources):
     snapshots = {}
     for device, spec in CHECKPOINTS.items():
         repo = sources[device]
-        require(not git(repo, 'status', '--porcelain'), f'Source checkout must be clean: {repo}')
+        paths = source_paths([device])
+        dirty = git(repo, 'status', '--porcelain', '--', *paths)
+        require(not dirty, f'{device}: selected source/build inputs must be clean: {repo}\n{dirty}')
         head = git(repo, 'rev-parse', 'HEAD')
-        require(head == spec['commit'],
-                f'{device}: expected tested dev commit {spec["commit"]}, got {head}. '
-                'Pull the dev branch before publishing; do not relabel an untested build.')
+        # Later commits may change only the independent TouchPour project. Pin
+        # OTA provenance to the tested touchscreen commit, without stashing or
+        # modifying the user's unrelated work.
+        git(repo, 'merge-base', '--is-ancestor', spec['commit'], head)
+        changed = git(repo, 'diff', '--name-only', spec['commit'], head, '--', *paths)
+        require(not changed,
+                f'{device}: build inputs changed since tested commit {spec["commit"]}:\n{changed}\n'
+                'Do not relabel an untested build.')
         require((repo / spec['version_file']).read_text().strip() == spec['version'],
                 f'{device}: source version does not match the tested checkpoint')
         binary = repo / spec['build'] / (spec['app'] + '.bin')

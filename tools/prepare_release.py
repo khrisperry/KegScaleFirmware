@@ -33,6 +33,12 @@ def git(repo, *args):
     ).strip()
 
 
+def source_paths(selected_devices):
+    # TouchPour is a separate ESP-IDF project with no touchscreen build inputs.
+    # Keep every root/shared/touchscreen path protected; ignore only TouchPour.
+    return ['.', ':(exclude)touchpour'] if set(selected_devices) == {'touchscreen'} else ['.']
+
+
 def image_identity(data):
     if len(data) < 112 or data[0] != 0xE9:
         raise SystemExit('Not an ESP-IDF application image')
@@ -119,8 +125,10 @@ def prepare(
 
     repos = {specs[name]['repo'] for name in selected_devices}
     for repo in repos:
-        if git(repo, 'status', '--porcelain'):
-            raise SystemExit(f'Source checkout must be clean: {repo}')
+        devices_in_repo = [name for name in selected_devices if specs[name]['repo'] == repo]
+        dirty = git(repo, 'status', '--porcelain', '--', *source_paths(devices_in_repo))
+        if dirty:
+            raise SystemExit(f'Selected source/build inputs must be clean: {repo}\n{dirty}')
 
     prepared = []
 

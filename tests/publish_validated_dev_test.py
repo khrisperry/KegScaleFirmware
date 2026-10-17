@@ -155,6 +155,48 @@ class PublishTest(unittest.TestCase):
             self.run_publish()
         self.assertEqual(git(self.remote, 'rev-parse', 'main'), self.initial)
 
+    def test_unrelated_touchpour_commits_and_dirty_work_are_preserved(self):
+        source = self.sources['touchscreen']
+        touchpour = source / 'touchpour'
+        touchpour.mkdir()
+        path = touchpour / 'ui.cpp'
+        path.write_text('committed TouchPour work')
+        git(source, 'add', 'touchpour')
+        git(source, 'commit', '-m', 'Independent TouchPour work')
+        path.write_text('staged TouchPour work')
+        git(source, 'add', 'touchpour')
+        path.write_text('unstaged TouchPour work')
+        (touchpour / 'new-file.txt').write_text('untracked TouchPour work')
+        status_before = git(source, 'status', '--porcelain')
+        index_before = git(source, 'diff', '--cached')
+        self.args.dry_run = True
+        self.run_publish()
+        self.assertEqual(git(source, 'status', '--porcelain'), status_before)
+        self.assertEqual(git(source, 'diff', '--cached'), index_before)
+        self.assertEqual(path.read_text(), 'unstaged TouchPour work')
+        self.assertEqual(git(self.remote, 'rev-parse', 'main'), self.initial)
+
+    def test_dirty_touchscreen_source_is_still_rejected(self):
+        path = self.sources['touchscreen'] / 'touchscreen/local.cpp'
+        path.write_text('uncommitted selected project source')
+        with self.assertRaisesRegex(RuntimeError, 'selected source/build inputs must be clean'):
+            self.run_publish()
+        self.assertEqual(path.read_text(), 'uncommitted selected project source')
+        self.assertEqual(git(self.remote, 'rev-parse', 'main'), self.initial)
+
+    def test_shared_build_input_changes_are_still_rejected(self):
+        source = self.sources['touchscreen']
+        path = source / 'components/ble_client/local.c'
+        path.parent.mkdir(parents=True)
+        path.write_text('shared input')
+        with self.assertRaisesRegex(RuntimeError, 'selected source/build inputs must be clean'):
+            self.run_publish()
+        git(source, 'add', 'components')
+        git(source, 'commit', '-m', 'Shared input changed')
+        with self.assertRaisesRegex(RuntimeError, 'build inputs changed since tested commit'):
+            self.run_publish()
+        self.assertEqual(git(self.remote, 'rev-parse', 'main'), self.initial)
+
     def test_invalid_retained_name_prevents_deletion(self):
         folder = self.feed / 'firmware/dev/esp32s3'
         before = sorted(p.name for p in folder.iterdir())
