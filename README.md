@@ -76,6 +76,41 @@ red in an interactive terminal. The runner continues through all suites after an
 individual failure so the final summary shows the complete result set. Use
 `NO_COLOR=1` or `--no-color` when ANSI colors are not wanted.
 
+## Publish the tested October 17 Dev checkpoint
+
+The tested candidates are Scale **V1.4.14** (source `ff35afc935421e9a10b0feb7c5a58e550e95d698`)
+and Touch **V1.4.23** (source `ddb9afad318493b9a9b311773e487fbeac935118`).
+Their application images already exist in the normal local ESP-IDF build folders.
+Run from the workstation that holds the existing Dev signing key:
+
+```powershell
+cd C:\Users\kperry\Documents\GitHub\KegScaleFirmware
+git pull origin main
+python tools\publish_validated_dev.py
+```
+
+The checkpoint-specific helper validates the clean source commits, embedded
+versions/targets, OTA slot sizes, current signed feeds, and matching Dev key.
+It prepares and verifies both signed releases in an isolated Git worktree,
+then retains the new image and the previously published image per Dev stream.
+It commits the two releases, signatures, inventories and older-image deletions
+together and pushes once. No rebuild, private-key upload, or source checkout
+modification is performed. Existing unrelated local firmware changes are left
+alone. A concurrent remote change rejects the push rather than overwriting it.
+
+Expected retained pairs: Scale V1.4.14 + V1.4.7; Touch V1.4.23 + V1.4.14.
+Production, Beta and e-paper feeds are outside the publication scope.
+The first publication removes 15 older images from these two active Dev paths;
+historical Git commits are retained. Add `--dry-run` to verify the complete
+signing/preparation/retention path without pushing. Private keys remain at
+`~/.kegscale/ota-keys` (or `KEGSCALE_OTA_KEY_DIR` / `--signing-key-dir`).
+
+Offline regression test, using temporary test keys and a local bare Git remote:
+
+```text
+python tests/publish_validated_dev_test.py
+```
+
 ## Publishing
 
 Source pushes do not automatically publish. Local releases use ESP-IDF 6.0.1,

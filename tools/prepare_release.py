@@ -263,6 +263,8 @@ def prepare(
         '--version', version,
         '--source-check',
         '--skip-docs',
+        '--scale-root', str(scale),
+        '--display-root', str(display),
     ]
     for name in selected_devices:
         check_cmd.extend(['--device', name])
