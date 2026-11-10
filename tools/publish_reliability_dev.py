@@ -85,8 +85,12 @@ def git(repo: Path, *args: str, capture: bool = False) -> str:
     return command(["git", *args], cwd=repo, capture=capture)
 
 
-def idf_build_command(*, jobs: int | None = None) -> list[str]:
-    """Launch ESP-IDF through Python (direct idf.py raises WinError 193 on Windows)."""
+def idf_command(action: str = "build") -> list[str]:
+    """Launch ESP-IDF through Python (direct idf.py raises WinError 193 on Windows).
+
+    ESP-IDF v6.0.1 on this Windows installation does not accept -j as an
+    idf.py option. For controlled job counts use Ninja's -j directly.
+    """
     idf_root = os.environ.get("IDF_PATH", "").strip()
     if idf_root:
         idf_script = Path(idf_root) / "tools" / "idf.py"
@@ -99,11 +103,8 @@ def idf_build_command(*, jobs: int | None = None) -> list[str]:
         "PowerShell terminal and retry. "
         f"IDF_PATH={idf_root or '<unset>'!r}",
     )
-    args = [sys.executable, str(idf_script)]
-    if jobs is not None:
-        check(jobs > 0, "Build concurrency must be positive")
-        args.extend(["-j", str(jobs)])
-    return [*args, "build"]
+    check(action in ("build", "reconfigure"), "Unsupported IDF action")
+    return [sys.executable, str(idf_script), action]
 
 
 def build_firmware(device: str, directory: Path) -> None:
@@ -116,25 +117,31 @@ def build_firmware(device: str, directory: Path) -> None:
     Never sign, stage or publish a failed / partial image.
     """
     if device != "touchscreen":
-        command(idf_build_command(), cwd=directory)
+        command(idf_command("build"), cwd=directory)
         return
     compile_env = {
         "IDF_CCACHE_ENABLE": "0",
         "CCACHE_DISABLE": "1",
     }
+    print("\nTouchscreen: configuring ESP-IDF project with ccache disabled.", flush=True)
+    command(idf_command("reconfigure"), cwd=directory,
+            env_overrides=compile_env)
     try:
-        print("\nTouchscreen: ccache disabled, max two build jobs.", flush=True)
-        command(idf_build_command(jobs=2), cwd=directory,
+        print("Touchscreen: compiling using Ninja with at most TWO jobs.", flush=True)
+        command(["ninja", "-C", "build", "-j", "2"], cwd=directory,
                 env_overrides=compile_env)
     except subprocess.CalledProcessError:
         print(
-            "\nTouchscreen build failed; retrying once with ONE build job "
-            "in the same worktree. If GCC crashes again, publication "
-            "stops without changing any OTA feed.",
+            "\nTouchscreen compilation failed; retrying ONCE with one Ninja "
+            "job in the same incremental worktree. If GCC crashes again, "
+            "publication stops without changing any OTA feed.",
             flush=True,
         )
-        command(idf_build_command(jobs=1), cwd=directory,
+        command(["ninja", "-C", "build", "-j", "1"], cwd=directory,
                 env_overrides=compile_env)
+    image = directory / "build" / "keg_scale_touchscreen.bin"
+    check(image.is_file() and image.stat().st_size > 0,
+          "Ninja did not produce a valid nonempty touchscreen application binary.")
 
 
 def preflight(key: Path, sources: dict[str, Path]) -> None:
