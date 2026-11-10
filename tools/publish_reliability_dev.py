@@ -64,14 +64,18 @@ def check(condition: bool, message: str) -> None:
         raise RuntimeError(message)
 
 
-def command(args: list[str | Path], *, cwd: Path, capture: bool = False) -> str:
+def command(args: list[str | Path], *, cwd: Path, capture: bool = False,
+            env_overrides: dict[str, str] | None = None) -> str:
     words = [str(arg) for arg in args]
+    if env_overrides:
+        print("Environment overrides:", env_overrides, flush=True)
     print("+", " ".join(words), f"(in {cwd})", flush=True)
     proc = subprocess.run(
         words,
         cwd=str(cwd),
         text=True,
         stdout=subprocess.PIPE if capture else None,
+        env={**os.environ, **env_overrides} if env_overrides else None,
         check=True,
     )
     return proc.stdout.strip() if capture else ""
@@ -81,7 +85,7 @@ def git(repo: Path, *args: str, capture: bool = False) -> str:
     return command(["git", *args], cwd=repo, capture=capture)
 
 
-def idf_build_command() -> list[str]:
+def idf_build_command(*, jobs: int | None = None) -> list[str]:
     """Launch ESP-IDF through Python (direct idf.py raises WinError 193 on Windows)."""
     idf_root = os.environ.get("IDF_PATH", "").strip()
     if idf_root:
@@ -95,7 +99,42 @@ def idf_build_command() -> list[str]:
         "PowerShell terminal and retry. "
         f"IDF_PATH={idf_root or '<unset>'!r}",
     )
-    return [sys.executable, str(idf_script), "build"]
+    args = [sys.executable, str(idf_script)]
+    if jobs is not None:
+        check(jobs > 0, "Build concurrency must be positive")
+        args.extend(["-j", str(jobs)])
+    return [*args, "build"]
+
+
+def build_firmware(device: str, directory: Path) -> None:
+    """Limit Windows GCC memory spikes while building the large LCD target.
+
+    A reported GCC 15.2 internal compiler error in IDF esp_lcd_panel_rgb.c
+    occurred with default Ninja parallelism. This target passed Linux CI.
+    Build it without ccache and with two jobs, retry once with one job
+    in the same incremental build tree if the compiler still fails.
+    Never sign, stage or publish a failed / partial image.
+    """
+    if device != "touchscreen":
+        command(idf_build_command(), cwd=directory)
+        return
+    compile_env = {
+        "IDF_CCACHE_ENABLE": "0",
+        "CCACHE_DISABLE": "1",
+    }
+    try:
+        print("\nTouchscreen: ccache disabled, max two build jobs.", flush=True)
+        command(idf_build_command(jobs=2), cwd=directory,
+                env_overrides=compile_env)
+    except subprocess.CalledProcessError:
+        print(
+            "\nTouchscreen build failed; retrying once with ONE build job "
+            "in the same worktree. If GCC crashes again, publication "
+            "stops without changing any OTA feed.",
+            flush=True,
+        )
+        command(idf_build_command(jobs=1), cwd=directory,
+                env_overrides=compile_env)
 
 
 def preflight(key: Path, sources: dict[str, Path]) -> None:
@@ -260,7 +299,7 @@ def main() -> int:
                 build_path = worktree / spec["subproject"]
                 print(f"\nBuilding {device} {spec['version']} "
                       f"from {spec['ref'][:12]} ...", flush=True)
-                command(idf_build_command(), cwd=build_path)
+                build_firmware(device, build_path)
 
             scale_root = worktrees["KegScaleESP"]
             display_root = worktrees["KegScaleESPDisplay"]
