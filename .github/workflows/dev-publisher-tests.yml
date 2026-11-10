@@ -1,0 +1,23 @@
+name: Dev Publisher Unit Tests
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'tools/publish_reliability_dev.py'
+      - 'tests/publish_reliability_dev_test.py'
+      - '.github/workflows/dev-publisher-tests.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test-release-helper:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate Python syntax
+        run: python3 -m py_compile tools/publish_reliability_dev.py tests/publish_reliability_dev_test.py
+      - name: Test ESP-IDF subprocess and native Ninja retry behavior
+        run: python3 -m unittest discover -s tests -p publish_reliability_dev_test.py -v
