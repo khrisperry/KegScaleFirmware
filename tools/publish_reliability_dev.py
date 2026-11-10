@@ -18,6 +18,7 @@ import argparse
 import json
 import os
 from pathlib import Path
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -78,6 +79,23 @@ def command(args: list[str | Path], *, cwd: Path, capture: bool = False) -> str:
 
 def git(repo: Path, *args: str, capture: bool = False) -> str:
     return command(["git", *args], cwd=repo, capture=capture)
+
+
+def idf_build_command() -> list[str]:
+    """Launch ESP-IDF through Python (direct idf.py raises WinError 193 on Windows)."""
+    idf_root = os.environ.get("IDF_PATH", "").strip()
+    if idf_root:
+        idf_script = Path(idf_root) / "tools" / "idf.py"
+    else:
+        located = shutil.which("idf.py")
+        idf_script = Path(located) if located else Path("__missing_idf__.py")
+    check(
+        idf_script.is_file() and idf_script.suffix.lower() == ".py",
+        "Cannot locate ESP-IDF tools/idf.py. Open an activated ESP-IDF v6.0.1 "
+        "PowerShell terminal and retry. "
+        f"IDF_PATH={idf_root or '<unset>'!r}",
+    )
+    return [sys.executable, str(idf_script), "build"]
 
 
 def preflight(key: Path, sources: dict[str, Path]) -> None:
@@ -242,7 +260,7 @@ def main() -> int:
                 build_path = worktree / spec["subproject"]
                 print(f"\nBuilding {device} {spec['version']} "
                       f"from {spec['ref'][:12]} ...", flush=True)
-                command(["idf.py", "build"], cwd=build_path)
+                command(idf_build_command(), cwd=build_path)
 
             scale_root = worktrees["KegScaleESP"]
             display_root = worktrees["KegScaleESPDisplay"]
