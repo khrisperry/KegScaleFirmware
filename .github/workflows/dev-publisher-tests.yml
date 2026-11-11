@@ -5,7 +5,9 @@ on:
     branches: [main]
     paths:
       - 'tools/publish_reliability_dev.py'
+      - 'tools/publish_diagnostics_dev.py'
       - 'tests/publish_reliability_dev_test.py'
+      - 'tests/publish_diagnostics_dev_test.py'
       - '.github/workflows/dev-publisher-tests.yml'
   workflow_dispatch:
 
@@ -18,6 +20,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Validate Python syntax
-        run: python3 -m py_compile tools/publish_reliability_dev.py tests/publish_reliability_dev_test.py
+        run: python3 -m py_compile tools/publish_reliability_dev.py tools/publish_diagnostics_dev.py tests/publish_reliability_dev_test.py tests/publish_diagnostics_dev_test.py
+      - name: Test diagnostic publisher scope and matching symbol retention
+        run: python3 -m unittest discover -s tests -p publish_diagnostics_dev_test.py -v
       - name: Test ESP-IDF subprocess and native Ninja retry behavior
         run: python3 -m unittest discover -s tests -p publish_reliability_dev_test.py -v
