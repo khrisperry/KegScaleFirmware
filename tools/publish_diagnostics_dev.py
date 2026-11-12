@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Publish the November 11 diagnostic Scale, e-Ink, and square 4B Dev images.
+"""Publish the November 12 diagnostic Scale, e-Ink, and square 4B Dev images.
 
 Run from an activated ESP-IDF v6.0.1 terminal on the computer that holds
 ~/.kegscale/ota-keys/ota-dev-private.pem:
@@ -29,8 +29,8 @@ ROOT = Path(__file__).resolve().parents[1]
 SOURCE = {
     "scale": {
         "repository": "KegScaleESP",
-        "ref": "0688fd231ab36fb3fdbafbb44d4345d4e03be104",
-        "version": "V1.4.21",
+        "ref": "212ea4f0579d4070d0e48921c32d678cb3ebbba4",
+        "version": "V1.4.22",
         "version_file": "version.txt",
         "subproject": ".",
         "family": "firmware",
@@ -39,8 +39,8 @@ SOURCE = {
     },
     "display": {
         "repository": "KegScaleESPDisplay",
-        "ref": "ed80906461e84d97391ad4880269d79e7d671d31",
-        "version": "V1.4.8",
+        "ref": "55a70ebf60f8450d70ba6cd730e60b93bede3156",
+        "version": "V1.4.9",
         "version_file": "version.txt",
         "subproject": ".",
         "family": "display",
@@ -49,8 +49,8 @@ SOURCE = {
     },
     "touchscreen": {
         "repository": "KegScaleESPDisplay",
-        "ref": "ed80906461e84d97391ad4880269d79e7d671d31",
-        "version": "V1.4.25",
+        "ref": "55a70ebf60f8450d70ba6cd730e60b93bede3156",
+        "version": "V1.4.26",
         "version_file": "touchscreen/version.txt",
         "subproject": "touchscreen",
         "family": "touchscreen",
@@ -257,7 +257,7 @@ def stage_and_publish() -> None:
     print("\nChanges ready for one Dev-only commit:")
     print(staged)
     git(ROOT, "commit", "-m",
-        "Publish Scale V1.4.21, e-Ink V1.4.8 and Touchscreen V1.4.25 Dev [skip ci]")
+        "Publish Scale V1.4.22, e-Ink V1.4.9 and Touchscreen V1.4.26 Dev [skip ci]")
     git(ROOT, "push", "origin", "main")
     print("\nPASS: All three signed Dev feeds published atomically.", flush=True)
 

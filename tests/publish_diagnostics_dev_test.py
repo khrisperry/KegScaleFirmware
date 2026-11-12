@@ -21,10 +21,10 @@ class WindowsBuildRegressionTests(regression.PublishReliabilityDevTest):
 class DiagnosticPublisherTests(unittest.TestCase):
     def test_exact_validated_commits_and_versions(self):
         self.assertEqual(set(diagnostic.SOURCE), {'scale', 'display', 'touchscreen'})
-        self.assertEqual(diagnostic.SOURCE['scale']['ref'], '0688fd231ab36fb3fdbafbb44d4345d4e03be104')
-        self.assertEqual(diagnostic.SOURCE['display']['ref'], 'ed80906461e84d97391ad4880269d79e7d671d31')
+        self.assertEqual(diagnostic.SOURCE['scale']['ref'], '212ea4f0579d4070d0e48921c32d678cb3ebbba4')
+        self.assertEqual(diagnostic.SOURCE['display']['ref'], '55a70ebf60f8450d70ba6cd730e60b93bede3156')
         self.assertEqual(diagnostic.SOURCE['touchscreen']['ref'], diagnostic.SOURCE['display']['ref'])
-        self.assertEqual([diagnostic.SOURCE[d]['version'] for d in diagnostic.SOURCE], ['V1.4.21','V1.4.8','V1.4.25'])
+        self.assertEqual([diagnostic.SOURCE[d]['version'] for d in diagnostic.SOURCE], ['V1.4.22','V1.4.9','V1.4.26'])
         self.assertEqual(diagnostic.SOURCE['touchscreen']['subproject'], 'touchscreen')
         self.assertFalse(any('touchscreen43' in f or 'touchpour' in f for f in diagnostic.expected_release_files()))
 
