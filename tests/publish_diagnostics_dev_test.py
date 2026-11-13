@@ -21,7 +21,7 @@ class WindowsBuildRegressionTests(regression.PublishReliabilityDevTest):
 class DiagnosticPublisherTests(unittest.TestCase):
     def test_exact_validated_commits_and_versions(self):
         self.assertEqual(set(diagnostic.SOURCE), {'scale', 'display', 'touchscreen'})
-        self.assertEqual(diagnostic.SOURCE['scale']['ref'], '294efb47e28ce4d01c048748587f06441dbeb9d3')
+        self.assertEqual(diagnostic.SOURCE['scale']['ref'], '2cdb4ea2e14c9bcf11013407ca8e793fae855766')
         self.assertEqual(diagnostic.SOURCE['display']['ref'], '55a70ebf60f8450d70ba6cd730e60b93bede3156')
         self.assertEqual(diagnostic.SOURCE['touchscreen']['ref'], diagnostic.SOURCE['display']['ref'])
         self.assertEqual([diagnostic.SOURCE[d]['version'] for d in diagnostic.SOURCE], ['V1.4.23','V1.4.9','V1.4.26'])
