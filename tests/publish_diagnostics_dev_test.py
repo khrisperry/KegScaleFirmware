@@ -21,12 +21,48 @@ class WindowsBuildRegressionTests(regression.PublishReliabilityDevTest):
 class DiagnosticPublisherTests(unittest.TestCase):
     def test_exact_validated_commits_and_versions(self):
         self.assertEqual(set(diagnostic.SOURCE), {'scale', 'display', 'touchscreen'})
-        self.assertEqual(diagnostic.SOURCE['scale']['ref'], '212ea4f0579d4070d0e48921c32d678cb3ebbba4')
+        self.assertEqual(diagnostic.SOURCE['scale']['ref'], '294efb47e28ce4d01c048748587f06441dbeb9d3')
         self.assertEqual(diagnostic.SOURCE['display']['ref'], '55a70ebf60f8450d70ba6cd730e60b93bede3156')
         self.assertEqual(diagnostic.SOURCE['touchscreen']['ref'], diagnostic.SOURCE['display']['ref'])
-        self.assertEqual([diagnostic.SOURCE[d]['version'] for d in diagnostic.SOURCE], ['V1.4.22','V1.4.9','V1.4.26'])
+        self.assertEqual([diagnostic.SOURCE[d]['version'] for d in diagnostic.SOURCE], ['V1.4.23','V1.4.9','V1.4.26'])
         self.assertEqual(diagnostic.SOURCE['touchscreen']['subproject'], 'touchscreen')
         self.assertFalse(any('touchscreen43' in f or 'touchpour' in f for f in diagnostic.expected_release_files()))
+
+    def test_scale_only_release_scope(self):
+        files=diagnostic.expected_release_files(['scale'])
+        self.assertEqual(len(files),4)
+        self.assertTrue(all(p.startswith('firmware/dev/esp32s3/') or p.startswith('docs/releases/V1.4.23-scale-') for p in files))
+        self.assertFalse(any(p.startswith(('display/','touchscreen/')) for p in files))
+
+    def test_scale_only_main_builds_and_publishes_one_device(self):
+        with patch.object(sys,'argv',['publish','--publish','--scale-only']), \
+             patch.object(diagnostic,'preflight') as preflight, \
+             patch.object(diagnostic,'git'), \
+             patch.object(diagnostic,'validate_version'), \
+             patch.object(diagnostic,'build_firmware') as build, \
+             patch.object(diagnostic,'save_debug_symbols'), \
+             patch.object(diagnostic,'prepare') as prepare, \
+             patch.object(diagnostic,'verify') as verify, \
+             patch.object(diagnostic,'stage_and_publish') as publish, \
+             patch.object(diagnostic.subprocess,'run'):
+            self.assertEqual(diagnostic.main(),0)
+        self.assertEqual(build.call_count,1)
+        self.assertEqual(build.call_args.args[0],'scale')
+        self.assertEqual(prepare.call_count,1)
+        self.assertEqual(verify.call_count,1)
+        publish.assert_called_once_with(['scale'])
+        self.assertEqual(preflight.call_args.args[2],['scale'])
+
+    def test_scale_only_stages_exactly_four_files(self):
+        expected=diagnostic.expected_release_files(['scale'])
+        def fake_git(repo,*args,capture=False):
+            if args[:3]==('diff','--cached','--name-only'):
+                return '\n'.join(expected)
+            return ''
+        with patch.object(diagnostic,'git',side_effect=fake_git) as git:
+            diagnostic.stage_and_publish(['scale'])
+        adds=[c.args[1:] for c in git.call_args_list if c.args[1]=='add']
+        self.assertEqual(adds,[('add','--',*expected)])
 
     def test_missing_private_key_stops_before_git_or_feed_mutations(self):
         with tempfile.TemporaryDirectory() as tmp, patch.object(diagnostic, 'git') as git:

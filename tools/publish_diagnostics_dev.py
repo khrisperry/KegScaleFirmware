@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Publish the November 12 diagnostic Scale, e-Ink, and square 4B Dev images.
+"""Publish pinned diagnostic Dev images, optionally Scale only.
 
 Run from an activated ESP-IDF v6.0.1 terminal on the computer that holds
 ~/.kegscale/ota-keys/ota-dev-private.pem:
@@ -9,6 +9,7 @@ Run from an activated ESP-IDF v6.0.1 terminal on the computer that holds
 Builds immutable, verified Dev SHAs in temporary Git worktrees, signs each
 version separately using the existing trusted key, validates each feed, stages
 only the twelve Dev release files and publishes one atomic Git commit.
+Use --scale-only for a Scale-only diagnostic experiment.
 Does NOT access or modify TouchPour, the Waveshare 4.3-inch test firmware,
 or Beta/Production feeds. Never uploads a private key.
 """
@@ -29,8 +30,8 @@ ROOT = Path(__file__).resolve().parents[1]
 SOURCE = {
     "scale": {
         "repository": "KegScaleESP",
-        "ref": "212ea4f0579d4070d0e48921c32d678cb3ebbba4",
-        "version": "V1.4.22",
+        "ref": "294efb47e28ce4d01c048748587f06441dbeb9d3",
+        "version": "V1.4.23",
         "version_file": "version.txt",
         "subproject": ".",
         "family": "firmware",
@@ -145,7 +146,7 @@ def build_firmware(device: str, directory: Path) -> None:
           "Ninja did not produce a valid nonempty touchscreen application binary.")
 
 
-def preflight(key: Path, sources: dict[str, Path]) -> None:
+def preflight(key: Path, sources: dict[str, Path], devices=None) -> None:
     check(key.is_file(),
           f"Cannot sign Dev OTA: private key not found at {key}. "
           "Run this on the Windows computer containing your current OTA keys.")
@@ -170,7 +171,7 @@ def preflight(key: Path, sources: dict[str, Path]) -> None:
               f"{repo_name} diagnostic branch changed from validated commit {expected} to "
               f"{remote_sha}. Refuse to publish unreviewed code.")
 
-    expected_files = expected_release_files()
+    expected_files = expected_release_files(devices)
     for name in expected_files:
         local_state = git(ROOT, "status", "--porcelain", "--", name,
                           capture=True)
@@ -179,9 +180,10 @@ def preflight(key: Path, sources: dict[str, Path]) -> None:
               "inspect it before publishing.")
 
 
-def expected_release_files() -> list[str]:
+def expected_release_files(devices=None) -> list[str]:
     files = []
-    for device, spec in SOURCE.items():
+    for device in (devices if devices is not None else SOURCE):
+        spec = SOURCE[device]
         directory = f"{spec['family']}/dev/{spec['target']}"
         files += [
             f"{directory}/manifest.json",
@@ -245,8 +247,9 @@ def verify(device: str, spec: dict[str, str],
           f"SHA-256 validated ({manifest['size']} bytes)", flush=True)
 
 
-def stage_and_publish() -> None:
-    expected = expected_release_files()
+def stage_and_publish(devices=None) -> None:
+    devices = list(devices if devices is not None else SOURCE)
+    expected = expected_release_files(devices)
     git(ROOT, "add", "--", *expected)
     staged = git(ROOT, "diff", "--cached", "--name-only", capture=True)
     staged_set = set(staged.splitlines())
@@ -257,9 +260,9 @@ def stage_and_publish() -> None:
     print("\nChanges ready for one Dev-only commit:")
     print(staged)
     git(ROOT, "commit", "-m",
-        "Publish Scale V1.4.22, e-Ink V1.4.9 and Touchscreen V1.4.26 Dev [skip ci]")
+        "Publish " + ", ".join(f"{d} {SOURCE[d]['version']}" for d in devices) + " Dev [skip ci]")
     git(ROOT, "push", "origin", "main")
-    print("\nPASS: All three signed Dev feeds published atomically.", flush=True)
+    print("\nPASS: Selected signed Dev feeds published atomically: " + ", ".join(devices), flush=True)
 
 
 def save_debug_symbols(device: str, spec: dict[str, str], project: Path,
@@ -285,8 +288,10 @@ def save_debug_symbols(device: str, spec: dict[str, str], project: Path,
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--scale-only", action="store_true",
+                        help="Build/sign/publish only the Scale; preserve both display feeds.")
     parser.add_argument("--publish", action="store_true",
-                        help="After validation, commit and push only the three "
+                        help="After validation, commit and push only the selected "
                              "signed Dev releases to origin/main.")
     parser.add_argument("--signing-key-dir", type=Path,
                         help="Directory containing ota-dev-private.pem; "
@@ -298,8 +303,9 @@ def main() -> int:
     args = parser.parse_args()
     if not args.publish:
         parser.error("Publication is explicit: pass --publish to build, sign, "
-                     "validate and push the three Dev feeds.")
+                     "validate and push the selected Dev feeds.")
 
+    devices = ["scale"] if args.scale_only else list(SOURCE)
     signing_dir = args.signing_key_dir or Path(
         os.environ.get("KEGSCALE_OTA_KEY_DIR",
                        str(Path.home() / ".kegscale" / "ota-keys"))
@@ -309,7 +315,7 @@ def main() -> int:
         name: ROOT.parent / name
         for name in ("KegScaleESP", "KegScaleESPDisplay")
     }
-    preflight(signing_key, sources)
+    preflight(signing_key, sources, devices)
 
     # In particular, do not change the user's checked-out Waveshare test
     # branch or dirty local source files.
@@ -326,7 +332,8 @@ def main() -> int:
                 git(source, "worktree", "add", "--detach", str(path), ref)
                 added.append((source, path))
 
-            for device, spec in SOURCE.items():
+            for device in devices:
+                spec = SOURCE[device]
                 worktree = worktrees[spec["repository"]]
                 validate_version(worktree, spec)
                 build_path = worktree / spec["subproject"]
@@ -337,12 +344,14 @@ def main() -> int:
 
             scale_root = worktrees["KegScaleESP"]
             display_root = worktrees["KegScaleESPDisplay"]
-            for device, spec in SOURCE.items():
+            for device in devices:
+                spec = SOURCE[device]
                 prepare(device, spec, scale_root, display_root, signing_dir.expanduser().resolve())
-            for device, spec in SOURCE.items():
+            for device in devices:
+                spec = SOURCE[device]
                 verify(device, spec, scale_root, display_root)
 
-            stage_and_publish()
+            stage_and_publish(devices)
         finally:
             for source, path in reversed(added):
                 subprocess.run(["git", "worktree", "remove", "--force", str(path)],
