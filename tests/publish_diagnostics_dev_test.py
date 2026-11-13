@@ -21,17 +21,17 @@ class WindowsBuildRegressionTests(regression.PublishReliabilityDevTest):
 class DiagnosticPublisherTests(unittest.TestCase):
     def test_exact_validated_commits_and_versions(self):
         self.assertEqual(set(diagnostic.SOURCE), {'scale', 'display', 'touchscreen'})
-        self.assertEqual(diagnostic.SOURCE['scale']['ref'], '94f302e09e4685bab090992131f916c000497918')
+        self.assertEqual(diagnostic.SOURCE['scale']['ref'], '7e8ab6463abab24d706e93910b36d56d9dfd1218')
         self.assertEqual(diagnostic.SOURCE['display']['ref'], '55a70ebf60f8450d70ba6cd730e60b93bede3156')
         self.assertEqual(diagnostic.SOURCE['touchscreen']['ref'], diagnostic.SOURCE['display']['ref'])
-        self.assertEqual([diagnostic.SOURCE[d]['version'] for d in diagnostic.SOURCE], ['V1.4.24','V1.4.9','V1.4.26'])
+        self.assertEqual([diagnostic.SOURCE[d]['version'] for d in diagnostic.SOURCE], ['V1.4.25','V1.4.9','V1.4.26'])
         self.assertEqual(diagnostic.SOURCE['touchscreen']['subproject'], 'touchscreen')
         self.assertFalse(any('touchscreen43' in f or 'touchpour' in f for f in diagnostic.expected_release_files()))
 
     def test_scale_only_release_scope(self):
         files=diagnostic.expected_release_files(['scale'])
         self.assertEqual(len(files),4)
-        self.assertTrue(all(p.startswith('firmware/dev/esp32s3/') or p.startswith('docs/releases/V1.4.24-scale-') for p in files))
+        self.assertTrue(all(p.startswith('firmware/dev/esp32s3/') or p.startswith('docs/releases/V1.4.25-scale-') for p in files))
         self.assertFalse(any(p.startswith(('display/','touchscreen/')) for p in files))
 
     def test_scale_only_main_builds_and_publishes_one_device(self):
