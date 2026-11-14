@@ -1,0 +1,13 @@
+[
+  {
+    "device": "firmware",
+    "channel": "dev",
+    "signed": true,
+    "signature_key_id": "b22d59da8a84e17f",
+    "version": "V1.4.28",
+    "commit": "57f19f119089fdac2addd680cdcaeb85f862c5ba",
+    "size": 1864048,
+    "sha256": "7514f91e63d487945746227e36ce700e08cdf96a363849ec9132a8b6d4713282",
+    "url": "https://raw.githubusercontent.com/khrisperry/KegScaleFirmware/main/firmware/dev/esp32s3/keg_scale_esp-57f19f119089.bin"
+  }
+]
