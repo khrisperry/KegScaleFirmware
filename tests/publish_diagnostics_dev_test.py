@@ -22,9 +22,9 @@ class DiagnosticPublisherTests(unittest.TestCase):
     def test_exact_validated_commits_and_versions(self):
         self.assertEqual(set(diagnostic.SOURCE), {'scale', 'display', 'touchscreen'})
         self.assertEqual(diagnostic.SOURCE['scale']['ref'], 'e905d575e3d6beefe1381d83530bb05952f80e86')
-        self.assertEqual(diagnostic.SOURCE['display']['ref'], '55a70ebf60f8450d70ba6cd730e60b93bede3156')
+        self.assertEqual(diagnostic.SOURCE['display']['ref'], 'c62211a867f3e44a1994234d7a0031aa1d1e3774')
         self.assertEqual(diagnostic.SOURCE['touchscreen']['ref'], diagnostic.SOURCE['display']['ref'])
-        self.assertEqual([diagnostic.SOURCE[d]['version'] for d in diagnostic.SOURCE], ['V2.0.0','V1.4.9','V1.4.26'])
+        self.assertEqual([diagnostic.SOURCE[d]['version'] for d in diagnostic.SOURCE], ['V2.0.0','V2.0.0','V2.0.0'])
         self.assertEqual(diagnostic.SOURCE['touchscreen']['subproject'], 'touchscreen')
         self.assertFalse(any('touchscreen43' in f or 'touchpour' in f for f in diagnostic.expected_release_files()))
 

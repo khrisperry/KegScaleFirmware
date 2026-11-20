@@ -40,8 +40,8 @@ SOURCE = {
     },
     "display": {
         "repository": "KegScaleESPDisplay",
-        "ref": "55a70ebf60f8450d70ba6cd730e60b93bede3156",
-        "version": "V1.4.9",
+        "ref": "c62211a867f3e44a1994234d7a0031aa1d1e3774",
+        "version": "V2.0.0",
         "version_file": "version.txt",
         "subproject": ".",
         "family": "display",
@@ -50,8 +50,8 @@ SOURCE = {
     },
     "touchscreen": {
         "repository": "KegScaleESPDisplay",
-        "ref": "55a70ebf60f8450d70ba6cd730e60b93bede3156",
-        "version": "V1.4.26",
+        "ref": "c62211a867f3e44a1994234d7a0031aa1d1e3774",
+        "version": "V2.0.0",
         "version_file": "touchscreen/version.txt",
         "subproject": "touchscreen",
         "family": "touchscreen",
@@ -119,7 +119,12 @@ def build_firmware(device: str, directory: Path) -> None:
     Never sign, stage or publish a failed / partial image.
     """
     if device != "touchscreen":
-        command(idf_command("build"), cwd=directory)
+        try:
+            command(idf_command("build"), cwd=directory)
+        except subprocess.CalledProcessError:
+            print(f"\n{device}: build failed; retrying ONCE with one Ninja job "
+                  "(Windows GCC can crash under parallel load).", flush=True)
+            command(["ninja", "-C", "build", "-j", "1"], cwd=directory)
         return
     compile_env = {
         "IDF_CCACHE_ENABLE": "0",
