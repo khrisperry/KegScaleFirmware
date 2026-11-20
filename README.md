@@ -1,5 +1,8 @@
 # Keg Scale firmware downloads
 
+**Setting up a KegScale?** Read the [Installation & User Guide](docs/install-guide/README.md).
+The QR code for printed material is [docs/install-guide/images/guide-qr.png](docs/install-guide/images/guide-qr.png).
+
 Current coordinated release: **V1.4.0**, September 25, 2026.
 
 This repository distributes OTA application images, channel manifests, and release
