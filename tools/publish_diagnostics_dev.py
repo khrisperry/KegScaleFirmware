@@ -30,8 +30,8 @@ ROOT = Path(__file__).resolve().parents[1]
 SOURCE = {
     "scale": {
         "repository": "KegScaleESP",
-        "ref": "ab8c477c20e3004e087b243155c52d2d3150aa66",
-        "version": "V1.5.5",
+        "ref": "55afff4791741984489808bf25e6044aee8605ee",
+        "version": "V1.5.6",
         "version_file": "version.txt",
         "subproject": ".",
         "family": "firmware",
