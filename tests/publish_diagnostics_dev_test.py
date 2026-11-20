@@ -22,9 +22,9 @@ class DiagnosticPublisherTests(unittest.TestCase):
     def test_exact_validated_commits_and_versions(self):
         self.assertEqual(set(diagnostic.SOURCE), {'scale', 'display', 'touchscreen'})
         self.assertEqual(diagnostic.SOURCE['scale']['ref'], 'e905d575e3d6beefe1381d83530bb05952f80e86')
-        self.assertEqual(diagnostic.SOURCE['display']['ref'], 'c62211a867f3e44a1994234d7a0031aa1d1e3774')
+        self.assertEqual(diagnostic.SOURCE['display']['ref'], '831814c682519105727326109a9ea4fe96a88e2e')
         self.assertEqual(diagnostic.SOURCE['touchscreen']['ref'], diagnostic.SOURCE['display']['ref'])
-        self.assertEqual([diagnostic.SOURCE[d]['version'] for d in diagnostic.SOURCE], ['V2.0.0','V2.0.0','V2.0.0'])
+        self.assertEqual([diagnostic.SOURCE[d]['version'] for d in diagnostic.SOURCE], ['V2.0.0','V1.4.10','V1.4.27'])
         self.assertEqual(diagnostic.SOURCE['touchscreen']['subproject'], 'touchscreen')
         self.assertFalse(any('touchscreen43' in f or 'touchpour' in f for f in diagnostic.expected_release_files()))
 
@@ -52,6 +52,23 @@ class DiagnosticPublisherTests(unittest.TestCase):
         self.assertEqual(verify.call_count,1)
         publish.assert_called_once_with(['scale'])
         self.assertEqual(preflight.call_args.args[2],['scale'])
+
+    def test_displays_only_main_builds_and_publishes_both_displays(self):
+        with patch.object(sys,'argv',['publish','--publish','--displays-only']), \
+             patch.object(diagnostic,'preflight') as preflight, \
+             patch.object(diagnostic,'git'), \
+             patch.object(diagnostic,'validate_version'), \
+             patch.object(diagnostic,'build_firmware') as build, \
+             patch.object(diagnostic,'save_debug_symbols'), \
+             patch.object(diagnostic,'prepare'), \
+             patch.object(diagnostic,'verify'), \
+             patch.object(diagnostic,'stage_and_publish') as publish, \
+             patch.object(diagnostic.subprocess,'run'):
+            self.assertEqual(diagnostic.main(),0)
+        self.assertEqual([c.args[0] for c in build.call_args_list],['display','touchscreen'])
+        publish.assert_called_once_with(['display','touchscreen'])
+        self.assertEqual(preflight.call_args.args[2],['display','touchscreen'])
+        self.assertFalse(any(p.startswith('firmware/') for p in diagnostic.expected_release_files(['display','touchscreen'])))
 
     def test_scale_only_stages_exactly_four_files(self):
         expected=diagnostic.expected_release_files(['scale'])

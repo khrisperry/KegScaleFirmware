@@ -9,7 +9,8 @@ Run from an activated ESP-IDF v6.0.1 terminal on the computer that holds
 Builds immutable, verified Dev SHAs in temporary Git worktrees, signs each
 version separately using the existing trusted key, validates each feed, stages
 only the twelve Dev release files and publishes one atomic Git commit.
-Use --scale-only for a Scale-only diagnostic experiment.
+Use --scale-only for a Scale-only diagnostic experiment, or --displays-only
+for the e-Ink display and touchscreen without the Scale.
 Does NOT access or modify TouchPour, the Waveshare 4.3-inch test firmware,
 or Beta/Production feeds. Never uploads a private key.
 """
@@ -40,8 +41,8 @@ SOURCE = {
     },
     "display": {
         "repository": "KegScaleESPDisplay",
-        "ref": "c62211a867f3e44a1994234d7a0031aa1d1e3774",
-        "version": "V2.0.0",
+        "ref": "831814c682519105727326109a9ea4fe96a88e2e",
+        "version": "V1.4.10",
         "version_file": "version.txt",
         "subproject": ".",
         "family": "display",
@@ -50,8 +51,8 @@ SOURCE = {
     },
     "touchscreen": {
         "repository": "KegScaleESPDisplay",
-        "ref": "c62211a867f3e44a1994234d7a0031aa1d1e3774",
-        "version": "V2.0.0",
+        "ref": "831814c682519105727326109a9ea4fe96a88e2e",
+        "version": "V1.4.27",
         "version_file": "touchscreen/version.txt",
         "subproject": "touchscreen",
         "family": "touchscreen",
@@ -295,6 +296,9 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--scale-only", action="store_true",
                         help="Build/sign/publish only the Scale; preserve both display feeds.")
+    parser.add_argument("--displays-only", action="store_true",
+                        help="Build/sign/publish only the e-Ink display and touchscreen; "
+                             "preserve the Scale feed.")
     parser.add_argument("--publish", action="store_true",
                         help="After validation, commit and push only the selected "
                              "signed Dev releases to origin/main.")
@@ -310,7 +314,14 @@ def main() -> int:
         parser.error("Publication is explicit: pass --publish to build, sign, "
                      "validate and push the selected Dev feeds.")
 
-    devices = ["scale"] if args.scale_only else list(SOURCE)
+    if args.scale_only and args.displays_only:
+        parser.error("Choose at most one of --scale-only and --displays-only.")
+    if args.scale_only:
+        devices = ["scale"]
+    elif args.displays_only:
+        devices = ["display", "touchscreen"]
+    else:
+        devices = list(SOURCE)
     signing_dir = args.signing_key_dir or Path(
         os.environ.get("KEGSCALE_OTA_KEY_DIR",
                        str(Path.home() / ".kegscale" / "ota-keys"))
