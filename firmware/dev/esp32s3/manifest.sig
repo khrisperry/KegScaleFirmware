@@ -3,5 +3,5 @@
   "algorithm": "ECDSA-P256-SHA256",
   "channel": "dev",
   "key_id": "b22d59da8a84e17f",
-  "signature": "ErivNBzmEyOq/u6CxfiLPRmnUwNkLsHL5MOhKn7Vh6Fu1By1qB0AWZ4t19cvJyGxAqg/oxsdauP0TIpAS1/03Q=="
+  "signature": "kV555ty6fFtQ4gJ3MqlLcM5sm9YSouTpb9W4l7Ub+0R/O2BlJOKJ6B5Hf1+CT6Fvsq7f7C3dFZcgZTGt+6RX9Q=="
 }
