@@ -11,8 +11,8 @@
   "url": "https://raw.githubusercontent.com/khrisperry/KegScaleFirmware/main/display/beta/esp32/keg_scale_display-831814c68251.bin",
   "size": 1336240,
   "sha256": "eca3fd716d63948ecca50f75971b087ea061c6aeffab08aa1df43ae2b2837d83",
-  "published_at": "2026-11-24T12:43:14Z",
-  "source_branch": "dev",
-  "promoted_from": "signed-dev",
-  "promoted_manifest_sha256": "31e0eaa783f872477271b2b26205846b0ebe321b08c43d513edb421217eff4bc"
+  "published_at": "2026-11-24T13:51:50Z",
+  "source_branch": "main",
+  "mirrored_from": "production",
+  "mirrored_manifest_sha256": "c09b0faccfec42e06576eac4f401efce07585fc6dccab41463989e8ca68d9358"
 }
