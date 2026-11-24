@@ -28,6 +28,8 @@ DEVICE_PATHS = {
         "target": "esp32s3",
         "app": "keg_scale_touchscreen",
     },
+    # Older ESP32-C3 scales (opt-in).
+    "scale-c3": {"family": "firmware", "target": "esp32c3", "app": "keg_scale_esp"},
 }
 
 
@@ -199,7 +201,7 @@ def main():
 
     key_dir = resolve_signing_key_dir(args.signing_key_dir)
     stamp = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
-    selected = args.devices or list(DEVICE_PATHS)
+    selected = args.devices or ["scale", "display", "touchscreen"]
 
     for device in selected:
         promote_one(device, args.version, key_dir, stamp)
