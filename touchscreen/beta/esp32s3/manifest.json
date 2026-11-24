@@ -11,8 +11,8 @@
   "sha256": "bf95c8da5f91f6aaf96dd14909b1ce60af1ae09b4517120dc1b7e69bfde5ec70",
   "url": "https://raw.githubusercontent.com/khrisperry/KegScaleFirmware/main/touchscreen/beta/esp32s3/keg_scale_touchscreen-831814c68251.bin",
   "branch": "beta",
-  "published_at": "2026-11-24T12:43:15Z",
-  "source_branch": "dev",
-  "promoted_from": "signed-dev",
-  "promoted_manifest_sha256": "5ae510f18fe315cc7d921bcc26af5750f4bce9b9cd6abebb0590fc78c073f165"
+  "published_at": "2026-11-24T13:51:51Z",
+  "source_branch": "main",
+  "mirrored_from": "production",
+  "mirrored_manifest_sha256": "335c077f1cf7825097ff77309cb47153b331cccb0020cafd6b69770d27ba80d5"
 }
