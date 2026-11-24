@@ -1,0 +1,24 @@
+[
+  {
+    "device": "firmware",
+    "channel": "dev",
+    "signed": true,
+    "signature_key_id": "b22d59da8a84e17f",
+    "version": "V2.1.8",
+    "commit": "e0fa600ad24709e41b7289a88eacb317a440b048",
+    "size": 1753648,
+    "sha256": "b79a9484f0d7cc8818e9c4a56ec5d4ff5fe4f4aaf5e85fa7181c9173742a2f58",
+    "url": "https://raw.githubusercontent.com/khrisperry/KegScaleFirmware/main/firmware/dev/esp32s3/keg_scale_esp-e0fa600ad247.bin"
+  },
+  {
+    "device": "firmware",
+    "channel": "dev",
+    "signed": true,
+    "signature_key_id": "b22d59da8a84e17f",
+    "version": "V2.1.8",
+    "commit": "e0fa600ad24709e41b7289a88eacb317a440b048",
+    "size": 1471936,
+    "sha256": "75111d164ab322efbc327eb6a28340b0ae30af898f826c9b6a0d7c7c5b9a0cc2",
+    "url": "https://raw.githubusercontent.com/khrisperry/KegScaleFirmware/main/firmware/dev/esp32c3/keg_scale_esp-e0fa600ad247.bin"
+  }
+]
