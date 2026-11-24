@@ -543,7 +543,7 @@ def main():
     parser.add_argument(
         "--device",
         action="append",
-        choices=["scale", "display", "touchscreen"],
+        choices=["scale", "scale-c3", "display", "touchscreen"],
         dest="devices",
         help="Device to check. Repeat as needed. Default: all.",
     )
@@ -597,7 +597,9 @@ def main():
     if contract is None:
         return 1
 
-    devices = args.devices or list(contract["devices"])
+    devices = args.devices or [
+        name for name, spec in contract["devices"].items() if not spec.get("opt_in")
+    ]
     channels = args.channels or ["dev", "beta", "production"]
     scale_root = args.scale_root.resolve()
     display_root = args.display_root.resolve()

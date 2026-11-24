@@ -36,6 +36,21 @@
         "requires_display_protocol_max": 1
       }
     },
+    "scale-c3": {
+      "family": "firmware",
+      "target": "esp32c3",
+      "app": "keg_scale_esp",
+      "chip_id": 5,
+      "source_repo": "KegScaleESP",
+      "source_version_file": "version.txt",
+      "manifest_fields": {
+        "protocol_version": 1,
+        "requires_display_protocol_min": 1,
+        "requires_display_protocol_max": 1
+      },
+      "opt_in": true,
+      "note": "Older ESP32-C3 scales (4 MB, no Bluetooth). Opt-in: not part of the coordinated release or the default device list."
+    },
     "display": {
       "family": "display",
       "target": "esp32",

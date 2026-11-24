@@ -37,7 +37,14 @@ DEVICE_PATHS = {
         "target": "esp32s3",
         "app": "keg_scale_touchscreen",
     },
+    # Older ESP32-C3 scales (no Bluetooth): opt-in, never part of "all devices".
+    "scale-c3": {
+        "family": "firmware",
+        "target": "esp32c3",
+        "app": "keg_scale_esp",
+    },
 }
+DEFAULT_DEVICES = ["scale", "display", "touchscreen"]
 
 
 def git(*args):
@@ -234,7 +241,7 @@ def main():
 
     key_dir = resolve_signing_key_dir(args.signing_key_dir)
     stamp = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
-    selected = args.devices or list(DEVICE_PATHS)
+    selected = args.devices or DEFAULT_DEVICES
 
     for device in selected:
         sync_one(device, key_dir, stamp)

@@ -50,7 +50,7 @@ def image_identity(data):
     return chip, version, app
 
 
-def device_specs(scale, display):
+def device_specs(scale, display, c3_build=None):
     return {
         'scale': {
             'family': 'firmware',
@@ -59,6 +59,16 @@ def device_specs(scale, display):
             'build': scale / 'build',
             'app': 'keg_scale_esp',
             'chip': 9,
+        },
+        # Older ESP32-C3 scales: same source, built with IDF_TARGET=esp32c3 and
+        # its own sdkconfig into --c3-build-dir.
+        'scale-c3': {
+            'family': 'firmware',
+            'target': 'esp32c3',
+            'repo': scale,
+            'build': c3_build or scale / 'build_c3',
+            'app': 'keg_scale_esp',
+            'chip': 5,
         },
         'display': {
             'family': 'display',
@@ -98,8 +108,9 @@ def prepare(
     source_commit=None,
     signing_key_dir=None,
     require_signatures=False,
+    c3_build=None,
 ):
-    specs = device_specs(scale, display)
+    specs = device_specs(scale, display, c3_build)
     signing_key_dir = resolve_signing_key_dir(signing_key_dir)
 
     if any(channel != 'dev' for channel in channels):
@@ -179,6 +190,9 @@ def prepare(
         template_path = (
             ROOT / spec['family'] / 'dev' / spec['target'] / 'manifest.json'
         )
+        if not template_path.exists() and name == 'scale-c3':
+            # First C3 publish: the S3 scale manifest has the same fields.
+            template_path = ROOT / 'firmware' / 'dev' / 'esp32s3' / 'manifest.json'
         template = json.loads(template_path.read_text())
         prepared.append((name, spec, data, commit, template))
 
@@ -296,7 +310,7 @@ if __name__ == '__main__':
     parser.add_argument(
         '--device',
         action='append',
-        choices=['scale', 'display', 'touchscreen'],
+        choices=['scale', 'scale-c3', 'display', 'touchscreen'],
         dest='devices',
         help='Device to prepare. Repeat to select multiple. Default: all.',
     )
@@ -331,6 +345,11 @@ if __name__ == '__main__':
         action='store_true',
         help='Compatibility flag; signatures are now always required.',
     )
+    parser.add_argument(
+        '--c3-build-dir',
+        type=Path,
+        help='Build directory of the ESP32-C3 scale image (scale-c3). Default: <scale-root>/build_c3.',
+    )
     args = parser.parse_args()
 
     prepare(
@@ -342,4 +361,5 @@ if __name__ == '__main__':
         args.source_commit,
         args.signing_key_dir,
         args.require_signatures,
+        args.c3_build_dir.resolve() if args.c3_build_dir else None,
     )
