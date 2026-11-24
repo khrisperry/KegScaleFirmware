@@ -1,8 +1,13 @@
 {
   "schema": 1,
   "current_production": {
-    "version": "V1.4.0",
-    "date": "2026-09-25"
+    "date": "2026-11-24",
+    "versions": {
+      "scale": "V2.1.8",
+      "display": "V1.4.10",
+      "touchscreen": "V1.4.27",
+      "scale-c3": "V2.1.8"
+    }
   },
   "channels": {
     "production": {

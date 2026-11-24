@@ -3,14 +3,14 @@
 **Setting up a KegScale?** Read the [Installation & User Guide](docs/install-guide/README.md).
 The QR code for printed material is [docs/install-guide/images/guide-qr.png](docs/install-guide/images/guide-qr.png).
 
-Current coordinated release: **V1.4.0**, September 25, 2026.
+Current Production release (November 24, 2026): scale **V2.1.8**, display **V1.4.10**, touchscreen **V1.4.27**, scale-c3 **V2.1.8**.
 
 This repository distributes OTA application images, channel manifests, and release
 notes for the Scale and both display types. Source and developer documentation:
 
 - [Scale](https://github.com/khrisperry/KegScaleESP)
 - [E-paper and Wi-Fi Touch Display](https://github.com/khrisperry/KegScaleESPDisplay)
-- [V1.4.0 coordinated release notes](docs/releases/V1.4.0.md)
+- [V1.4.0 coordinated release notes (previous Production)](docs/releases/V1.4.0.md)
 - [Scale V1.4.0 artifact inventory](docs/releases/V1.4.0-scale-dev-production-artifacts.json)
 - [E-paper V1.4.0 artifact inventory](docs/releases/V1.4.0-display-dev-production-artifacts.json)
 - [Touch V1.4.0 artifact inventory](docs/releases/V1.4.0-touchscreen-dev-production-artifacts.json)

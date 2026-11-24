@@ -407,6 +407,14 @@ def validate_beta_mirror(device, beta_manifest, prod_manifest, spec):
         fail(f"{device}/beta: Beta/Production artifact missing for mirror proof")
 
 
+def production_versions(contract):
+    """Per-device Production versions; old contracts had one shared version."""
+    current = contract["current_production"]
+    if "versions" in current:
+        return dict(current["versions"])
+    return {d: current["version"] for d in contract["devices"]}
+
+
 def validate_firmware_docs(contract):
     readme = ROOT / "README.md"
     if not readme.is_file():
@@ -414,16 +422,18 @@ def validate_firmware_docs(contract):
         return
 
     text = readme.read_text(encoding="utf-8")
-    version = contract["current_production"]["version"]
-    date_value = datetime.strptime(
-        contract["current_production"]["date"], "%Y-%m-%d"
-    )
+    current = contract["current_production"]
+    date_value = datetime.strptime(current["date"], "%Y-%m-%d")
     long_date = date_value.strftime("%B %d, %Y").replace(" 0", " ")
-    expected = f"Current coordinated release: **{version}**, {long_date}."
+    labels = ", ".join(
+        f"{contract['devices'][d].get('label', d)} **{v}**"
+        for d, v in production_versions(contract).items()
+    )
+    expected = f"Current Production release ({long_date}): {labels}."
     if expected not in text:
         fail(f"README current-release line is stale; expected: {expected}")
     else:
-        passed("firmware README current coordinated release matches contract")
+        passed("firmware README current Production release matches contract")
 
     required_phrases = [
         "Production, Beta, and Development are supported release channels.",
@@ -617,22 +627,22 @@ def main():
             )
 
     if "production" in channels and not args.version:
-        production_versions = {
-            manifests[(device, "production")].get("version")
+        expected = production_versions(contract)
+        mismatched = {
+            device: (manifests[(device, "production")] or {}).get("version")
             for device in devices
             if manifests.get((device, "production"))
+            and manifests[(device, "production")].get("version") != expected.get(device)
         }
-        expected_production = contract["current_production"]["version"]
-        if production_versions != {expected_production}:
+        if mismatched:
             fail(
-                "Production manifests do not match coordinated release contract: "
-                f"found={sorted(production_versions)} expected={expected_production}"
+                "Production manifests do not match the release contract: "
+                + ", ".join(
+                    f"{d} found={v} expected={expected.get(d)}" for d, v in mismatched.items()
+                )
             )
         else:
-            passed(
-                f"coordinated Production version is {expected_production} "
-                "for all selected devices"
-            )
+            passed("Production versions match the release contract for all selected devices")
 
     if "beta" in channels and not args.allow_beta_candidate:
         for device in devices:
