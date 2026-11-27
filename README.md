@@ -3,7 +3,7 @@
 **Setting up a KegScale?** Read the [Installation & User Guide](docs/install-guide/README.md).
 The QR code for printed material is [docs/install-guide/images/guide-qr.png](docs/install-guide/images/guide-qr.png).
 
-Current Production release (November 24, 2026): scale **V2.1.8**, display **V1.4.10**, touchscreen **V1.4.27**, scale-c3 **V2.1.8**.
+Current Production release (November 27, 2026): scale **V2.1.9**, display **V1.4.10**, touchscreen **V1.4.27**, scale-c3 **V2.1.9**.
 
 This repository distributes OTA application images, channel manifests, and release
 notes for the Scale and both display types. Source and developer documentation:
